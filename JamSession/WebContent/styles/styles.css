@@ -36,16 +36,7 @@ margin-bottom: 2%;
   color: white;
 }
 
-.client-channel-list-container{
-  background-color: grey;
-  background-image:  url("../Guitar-on-Fire.jpg");
-  z-index: 0;
-  width: 150px;
-  height: 100%;
-  position: absolute;
-  margin-top: -22px;
-  margin-left: -15px;
-}
+
 
 #navTab{
   margin-bottom: 1%;
@@ -69,4 +60,66 @@ body{
   position: absolute;
   left: 210px;
   bottom: 35px;
+}
+.client-channel-list-container{
+  background-color: grey;
+  background-image:  url("../Guitar-on-Fire.jpg");
+  z-index: 100;
+  width: 150px;
+  height: 100%;
+  position: fixed;
+  margin-top: -22px;
+  margin-left: -15px;
+}
+input.textarea{
+  position:fixed;
+  bottom:0px;
+  left: 151px;
+  right: 0px;
+  width: 100%;
+  height: 50px;
+  z-index:  99;
+  background: orangered;
+  border: none;
+  outline: none;
+  padding-left: 55px;
+  padding-right: 55px;
+  color: white;
+  font-weight: 400;
+}
+.emojis {
+  position: fixed;
+  display: block;
+  bottom: 8px;
+  left: 160px;
+  width: 34px;
+  height: 34px;
+  background-image: url(http://i.imgur.com/5WUpcPZ.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  z-index: 100;
+  cursor: pointer;
+}
+.emojis:active{
+  opacity: 0.9;
+}
+.message{
+  float: left;
+  width: auto;
+  left: 155px;
+  max-width: 80%;
+  position: relative;
+  clear: both;
+  background: white;
+  padding: 0.5em 1em;
+  background: linear-gradient(40deg, rgba(255, 255, 255, 0.2) 00%, rgba(255,255,255,0.3) 100%);
+  border-radius: 3px;
+  box-shadow: 0 5px 30px rgba(255,255,255,0.1);
+  margin-bottom: -10px;
+  color: black;
+  word-wrap: break-word;
+  font-size: 1em;
+  margin-top: 30px;
+
+
 }

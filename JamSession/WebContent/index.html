@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="styles/bootstrap.min.css">
-  <link rel="stylesheet" href="styles/styles.css"
+  <link rel="stylesheet" href="styles/styles.css">
 </head>
 <body >
   <nav id="header-nav" class="navbar navbar-default" >
@@ -144,16 +144,14 @@
       </div>
 
       <!--message write box-->
+      <div class="message" ng-hide="welcomeScreen">
+        <p><span class="glyphicon glyphicon-music" aria-hidden="true"></span>  hello world!</p>
+      </div>
+      <div class="message" ng-hide="welcomeScreen">
+        <p><span class="glyphicon glyphicon-music" aria-hidden="true"></span>  hello world!</p>
+      </div>
       <div id="footer" ng-hide="welcomeScreen">
-        <form id="userMessage" onsubmit="">
-          <textarea></textarea>
-          <a id="primary-file-button">
-            <i class="ts_icon ts_icon_plus_thick">
-            </i>
-          </a>
-          <a id="main_emo_menu" class="emo_menu" aria-label="Emoji menu">
-          </a>
-        </form>
+        <input class="textarea" type="text" placeholder="type here!" /><div class="emojis"></div>
       </div>
 
     </div>

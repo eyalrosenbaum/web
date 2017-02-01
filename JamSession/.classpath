@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
+		<attributes>
+			<attribute name="owner.project.facets" value="java"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="lib" path="C:/apache-derby/db-derby-10.13.1.1-bin/lib/derby.jar"/>
+	<classpathentry kind="lib" path="C:/apache-derby/db-derby-10.13.1.1-bin/lib/derbyclient.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Apache Software Foundation/Tomcat 7.0/lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Apache Software Foundation/commons-dbcp2-2.1.1/commons-dbcp2-2.1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Apache Software Foundation/commons-dbcp2-2.1.1/commons-dbcp2-2.1.1-javadoc.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Apache Software Foundation/Tomcat 7.0/lib/tomcat-dbcp.jar"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>

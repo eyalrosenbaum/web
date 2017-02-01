@@ -6,7 +6,7 @@ angular.module('jamSession', [])
 
 jamSessionController.$inject = ['$scope','$http'];
 function jamSessionController($scope,$http) {
-  $scope.welcomeScreen=true;
+  $scope.welcomeScreen=false;
   $scope.showSideBar = true;
   $scope.tab = "signup";
 
@@ -42,6 +42,7 @@ function jamSessionController($scope,$http) {
         $scope.userNickname = data.userNickname;
         $scope.userDescription = data.userDescription;
         $scope.userPhotoURL = data.userPhotoURL;
+        $scope.welcomeScreen=false;
     })
   };
 
@@ -57,6 +58,7 @@ function jamSessionController($scope,$http) {
         $scope.userNickname = data.userNickname;
         $scope.userDescription = data.userDescription;
         $scope.userPhotoURL = data.userPhotoURL;
+        $scope.welcomeScreen=false;
     });
   };
 

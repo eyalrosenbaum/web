@@ -1,11 +1,9 @@
 package servlets;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -15,12 +13,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -29,15 +25,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import javax.sql.DataSource;
-
-import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import JamSession.AppConstants;
-import models.Channel;
+import JamSession.AppVariables;
+import models.Subscription;
 import models.User;
 
 /**
@@ -62,6 +55,7 @@ public class SignupServlet extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 //		response.getWriter().append("Served at: ").append(request.getContextPath());
@@ -70,25 +64,26 @@ public class SignupServlet extends HttpServlet {
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
+	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
     		Gson gson = new Gson();
-        	//obtain UserDB data source from Tomcat's context
-    		Context context = new InitialContext();
-    		BasicDataSource ds = (BasicDataSource)context.lookup(
-    				getServletContext().getInitParameter(AppConstants.DB_DATASOURCE) + AppConstants.OPEN);
-    		Connection conn = ds.getConnection();
+    		Connection conn = AppVariables.db.getConnection();
 
     		HttpSession session = request.getSession();
     		User user = null;
+    		
+    		//reading user details from the request
     		BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
-    		String jsonDetails = "";
-    		if (br!=null){
-    			jsonDetails = br.readLine();
+    		StringBuilder jsonDetails =new StringBuilder();
+    		String line;
+    		while ((line = br.readLine()) !=null){
+    			jsonDetails.append(line);
     		}
-    		user = gson.fromJson(jsonDetails,User.class);
+    		user = gson.fromJson(jsonDetails.toString(),User.class);
     		
     		boolean badUserNameIndication = false;
+    		boolean badNicknameIndication = false;
     		
     		int userID = 0;
     		
@@ -96,6 +91,7 @@ public class SignupServlet extends HttpServlet {
     				(user.getUserDescription() != null) ){
     			PreparedStatement stmt;
     			try {
+    				//first checking that there is no other user with the same username
     				stmt = conn.prepareStatement(AppConstants.SELECT_USER_BY_USERNAME_STMT);
     				stmt.setString(1, user.getUserName());
     				
@@ -105,65 +101,85 @@ public class SignupServlet extends HttpServlet {
     				}
     				rs.close();
     				stmt.close();
+    				//checking that there is no other user with the same nickname
+    				stmt = conn.prepareStatement(AppConstants.SELECT_USER_BY_NICKNAME_STMT);
+    				stmt.setString(1, user.getUserNickname());
+    				
+    				rs = stmt.executeQuery();
+    				if (rs.next()){
+    					badNicknameIndication = true;
+    				}
+    				rs.close();
+    				stmt.close();
     			} catch (SQLException e) {
     				getServletContext().log("Error while querying for users", e);
     	    		response.sendError(500);//internal server error
     			}
-
-    			if (!badUserNameIndication){
-    				//if we entered here it means that the username selected was legal and we can
-    				//continue registration
+    			//if username and nickname are valid carry on with sign up
+    			if ((!badUserNameIndication)&&(!badNicknameIndication)){
     				try {
-	    				//getting users ID
-	    				stmt = conn.prepareStatement(AppConstants.SELECT_TOP_USERID_STMT);
-	    				ResultSet rs = stmt.executeQuery();
-	    				while (rs.next()){
-	    					userID = rs.getInt(1);
-	    				}
+    					//updating users logged and lastlogged attributes
+    					Timestamp time = new Timestamp(System.currentTimeMillis());
+    					user.setIslogged(true);
+    					user.setLastlogged(time);
 	    				//inserting user into users table
 	    				stmt = conn.prepareStatement(AppConstants.INSERT_USER_STMT);
-	    				stmt.setInt(1, userID);
-	    				stmt.setString(2, user.getUserName());
-	    				stmt.setString(3, user.getPassword());
-	    				stmt.setString(4, user.getUserNickname());
-	    				stmt.setString(5, user.getUserDescription());
-	    				stmt.setString(6, user.getPhotoURL());
+	    				stmt.setString(1, user.getUserName());
+	    				stmt.setString(2, user.getPassword());
+	    				stmt.setString(3, user.getUserNickname());
+	    				stmt.setString(4, user.getUserDescription());
+	    				stmt.setString(5, user.getPhotoURL());
+	    				stmt.setBoolean(6, true);
+	    				stmt.setTimestamp(7, time);
 	    				stmt.executeUpdate();
+	    				conn.commit();
+	    				stmt.close();
     				} catch (SQLException e) {
         				getServletContext().log("Error while inserting new user", e);
         	    		response.sendError(500);//internal server error
         			}
-	    				user.setId(userID);
-	    				Channel theGeneralChannel = new Channel(models.Type.PUBLIC,AppConstants.GENERAL_CHANNEL,AppConstants.GENERAL_CHANNEL_DESC);
-	    				user.addChannel(theGeneralChannel);
-	    				//entering the general channel subscription for this user
-	    				try {
-		    				//getting users ID
-		    				stmt = conn.prepareStatement(AppConstants.UPDATE_CHANNEL_USER);
-		    				stmt.setString(1, AppConstants.GENERAL_CHANNEL);
-		    				stmt.setInt(2, userID);
-		    				stmt.setString(3, user.getUserName());
-		    				stmt.executeUpdate();
+    				//every user is registered to the general channel
+    				Subscription firstSubscription = new Subscription(user.getUserName(),AppConstants.GENERAL_CHANNEL,models.Type.PUBLIC);
+	    			//updating our list of users for general channel
+    				ArrayList<User> currentList = AppVariables.usersByChannel.get(firstSubscription.getChannel());
+    				currentList.add(user);
+	    			AppVariables.usersByChannel.put(firstSubscription.getChannel(), currentList);
+    				//entering the general channel subscription for this user
+	    			try {
+		    			stmt = conn.prepareStatement(AppConstants.INSERT_SUBSCRIPTIONS);
+		    			stmt.setString(1, firstSubscription.getUsername());
+		    			stmt.setString(2, firstSubscription.getChannel());
+		    			stmt.executeUpdate();
+		    			conn.commit();
+		    			stmt.close();
 	    				} catch (SQLException e) {
-	        				getServletContext().log("Error while inserting new user", e);
+	        				getServletContext().log("Error while inserting new subscription", e);
 	        	    		response.sendError(500);//internal server error
 	        			}
-	    				//setting session attribute - user ID for future actions
-	    				session.setAttribute(AppConstants.USER_ID, userID);
+	    			//setting session attribute - username for future actions
+	    			session.setAttribute(AppConstants.USERNAME, user.getUserName());
+	    				
+	    				
     		}
 
     		conn.close();
     		
-        	//convert from users collection to json
-        	String userJsonResult = gson.toJson(user);
-
-        	PrintWriter writer = response.getWriter();
-        	writer.println(userJsonResult);
+    		String userJsonResult = null;
+    		PrintWriter writer = response.getWriter();
+        	//convert from user to json
+    		if (badUserNameIndication)
+    			user = new User("Error username taken");
+    		else
+    			user = new User("Error nickname taken");
+    		userJsonResult = gson.toJson(user);
+			writer.println(userJsonResult);
         	writer.close();
         	//inserting new user to user files
-        	saveNewUserToFile(user);
+        	if ((!badUserNameIndication)&&(!badNicknameIndication))
+        		saveNewUserToFile(user);
+        	conn.close();
     		}
-    	} catch (SQLException | NamingException e) {
+    	} catch (SQLException e) {
     		getServletContext().log("Error while closing connection", e);
     		response.sendError(500);//internal server error
     	}

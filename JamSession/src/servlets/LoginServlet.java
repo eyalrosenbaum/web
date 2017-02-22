@@ -1,29 +1,28 @@
 package servlets;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collection;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
+import javax.servlet.http.HttpSession;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import JamSession.AppConstants;
+import JamSession.AppVariables;
 import models.User;
 
 /**
@@ -48,6 +47,7 @@ public class LoginServlet extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		//response.getWriter().append("Served at: ").append(request.getContextPath());
@@ -56,21 +56,31 @@ public class LoginServlet extends HttpServlet {
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
+	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
     		
-        	//obtain UserDB data source from Tomcat's context
-    		Context context = new InitialContext();
-    		BasicDataSource ds = (BasicDataSource)context.lookup(
-    				getServletContext().getInitParameter(AppConstants.DB_DATASOURCE) + AppConstants.OPEN);
-    		Connection conn = ds.getConnection();
+			Connection conn = AppVariables.db.getConnection();
 
-    		Collection<User> usersResult = new ArrayList<User>(); 
+    		User userResult = null;
     		String userName = "userName";
     		String password = "password";
+    		boolean registered = false;
+    		HttpSession session = request.getSession();
     		
-    		String userNameValue = request.getParameter(userName);
-    		String passwordValue = request.getParameter(password);
+    		//reading user details from the request
+    		BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
+    		StringBuilder jsonDetails =new StringBuilder();
+    		String line;
+    		while ((line = br.readLine()) !=null){
+    			jsonDetails.append(line);
+    		}
+    		
+    		JsonParser parser = new JsonParser();
+    		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
+    		
+    		String userNameValue = jsonObject.get("userName").toString();
+    		String passwordValue = jsonObject.get("password").toString();
     		
     		if ((userNameValue !=null) && (passwordValue != null)){
     			PreparedStatement stmt;
@@ -80,29 +90,55 @@ public class LoginServlet extends HttpServlet {
     				stmt.setString(2, passwordValue);
     				
     				ResultSet rs = stmt.executeQuery();
-    				while (!rs.next()){
-    					//if there are results we add them to userResult
-    					usersResult.add(new User(rs.getInt(1),rs.getString(2),rs.getString(3),
-    							rs.getString(4),rs.getString(5),rs.getString(6)));
+    				Timestamp time = null;
+    				//if there are results than user is registered to site and it is ok to proceed
+    				if (rs.next()){
+    					registered = true;
+    					userResult = new User(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),
+    							rs.getString(5));
+    					userResult.setIslogged(true);
+    					time = new Timestamp(System.currentTimeMillis());
+    					userResult.setLastlogged(time);
     				}
     				rs.close();
     				stmt.close();
-    			} catch (SQLException e) {
-    				getServletContext().log("Error while querying for users", e);
-    	    		response.sendError(500);//internal server error
+    				if (registered){
+	    				//now we have to update users lastlogged and islogged fields
+	    				stmt = conn.prepareStatement(AppConstants.UPDATE_LOGGED_USER_STMT);
+	    				stmt.setTimestamp(1, time);
+	    				stmt.setString(2, userResult.getUserNickname());
+	    				stmt.executeUpdate();
+	    				//we also enter the user to the general channel current users
+	    				//updating our list of users for general channel
+	    				ArrayList<User> currentList = AppVariables.usersByChannel.get(AppConstants.GENERAL_CHANNEL);
+	    				currentList.add(userResult);
+		    			AppVariables.usersByChannel.put(AppConstants.GENERAL_CHANNEL, currentList);
+		    			conn.commit();
+		    			stmt.close();
+		    			//setting session attribute - username for future actions
+	    				session.setAttribute(AppConstants.USERNAME, userResult.getUserName());
+	    				
+    				}
+	    			} catch (SQLException e) {
+	    				getServletContext().log("Error while querying for users", e);
+	    	    		response.sendError(500);//internal server error
+	    			}
     			}
-    		}
+    		
 
     		conn.close();
-    		
-    		Gson gson = new Gson();
+    		//send users details to client
+			Gson gson = new Gson();
         	//convert from users collection to json
-        	String userJsonresult = gson.toJson(((ArrayList<User>) usersResult).get(0), User.class);
-
-        	PrintWriter writer = response.getWriter();
-        	writer.println(userJsonresult);
-        	writer.close();
-    	} catch (SQLException | NamingException e) {
+			String userJsonresult;
+			if (userResult != null){
+				userJsonresult = gson.toJson(userResult, User.class);
+	        	PrintWriter writer = response.getWriter();
+	        	writer.println(userJsonresult);
+	        	writer.close();
+			}
+    		
+    	} catch (SQLException e) {
     		getServletContext().log("Error while closing connection", e);
     		response.sendError(500);//internal server error
     	}

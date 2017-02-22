@@ -1,52 +1,142 @@
 package models;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 public class Message {
-	private Date date;
-	private String authorNickname;
-	private String authorPhotoURL;
-	private Message[] relpys;
 	
-	//constructor which does not recieve an array of messages as a parameter
-	public Message(Date date, String authorNickname, String authorPhotoURL) {
+	private int id;
+	private String author;
+	private String authorPhotoUrl;
+	private String channel;
+	private String content;
+	private boolean isThread;
+	private int isReplyTo;
+	private int threadID;
+	private Timestamp lastUpdate;
+	private Timestamp date;
+	private int numberOfReplies;
+	
+	//message constructor to enter new message
+	public Message(String author, String channel, String content, boolean isThread, int isReplyTo, int threadID,
+			Timestamp date) {
 		super();
+		this.author = author;
+		this.channel = channel;
+		this.content = content;
+		this.isThread = isThread;
+		this.isReplyTo = isReplyTo;
+		this.threadID = threadID;
 		this.date = date;
-		this.authorNickname = authorNickname;
-		this.authorPhotoURL = authorPhotoURL;
+		this.numberOfReplies = 0;
 	}
-	//constructor which recieves an array of messages as a parameter
-	public Message(Date date, String authorNickname, String authorPhotoURL, Message[] relpys) {
+	
+	//message constructor for use when extracting messages data from database
+	public Message(int id, String author, String channel, String content, boolean isThread, int isReplyTo, int threadID,
+			Timestamp lastUpdate, Timestamp date) {
 		super();
+		this.id = id;
+		this.author = author;
+		this.channel = channel;
+		this.content = content;
+		this.isThread = isThread;
+		this.isReplyTo = isReplyTo;
+		this.threadID = threadID;
+		this.lastUpdate = lastUpdate;
 		this.date = date;
-		this.authorNickname = authorNickname;
-		this.authorPhotoURL = authorPhotoURL;
-		this.relpys = relpys;
+		this.numberOfReplies = 0;
 	}
-	
-	
-	public Date getDate() {
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+
+	public String getChannel() {
+		return channel;
+	}
+
+	public void setChannel(String channel) {
+		this.channel = channel;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public boolean isThread() {
+		return isThread;
+	}
+
+	public void setThread(boolean isThread) {
+		this.isThread = isThread;
+	}
+
+	public int getIsReplyTo() {
+		return isReplyTo;
+	}
+
+	public void setIsReplyTo(int isReplyTo) {
+		this.isReplyTo = isReplyTo;
+	}
+
+	public int getThreadID() {
+		return threadID;
+	}
+
+	public void setThreadID(int threadID) {
+		this.threadID = threadID;
+	}
+
+	public Timestamp getLastUpdate() {
+		return lastUpdate;
+	}
+
+	public void setLastUpdate(Timestamp lastUpdate) {
+		this.lastUpdate = lastUpdate;
+	}
+
+	public Timestamp getDate() {
 		return date;
 	}
-	public void setDate(Date date) {
+
+	public void setDate(Timestamp date) {
 		this.date = date;
 	}
-	public String getAuthorNickname() {
-		return authorNickname;
+	
+	public String getAuthorPhotoUrl() {
+		return authorPhotoUrl;
 	}
-	public void setAuthorNickname(String authorNickname) {
-		this.authorNickname = authorNickname;
+
+	public void setAuthorPhotoUrl(String authorPhotoUrl) {
+		this.authorPhotoUrl = authorPhotoUrl;
 	}
-	public String getAuthorPhotoURL() {
-		return authorPhotoURL;
+
+	public int getNumberOfReplies() {
+		return numberOfReplies;
 	}
-	public void setAuthorPhotoURL(String authorPhotoURL) {
-		this.authorPhotoURL = authorPhotoURL;
+
+	public void addtoumberOfReplies() {
+		this.numberOfReplies++;
 	}
-	public Message[] getRelpys() {
-		return relpys;
-	}
-	public void setRelpys(Message[] relpys) {
-		this.relpys = relpys;
-	}
+	
+	
+
+	
+
+
 }

@@ -256,6 +256,8 @@ public class ManageJamSessionDBFromJsonFile implements ServletContextListener {
 
     		//close connection
     		conn.close();
+    		
+    		AppVariables.privateChatCounter = 0;
 
     	} catch (IOException | SQLException e) {
     		//log error 

@@ -69,6 +69,7 @@
         <li ng-repeat = "channel in UserPublicChannels"
           ng-class = "{'active' : isActiveChannel(channel.channel)}"
           ng-click = "setChannel(channel.channel)" ng-show="showChannels">{{channel.channel}}
+          <span class="badge" ng-show=(channel.mentions > 0)>{{channel.mentions}}</span><span class="badge" ng-show=(channel.notifications > 0)>{{channel.notifications}}</span>
           <button type="button" class="btn btn-default" aria-label="Left Align" ng-click="publicChannelRemove(channel.channel)">
             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
           </button>
@@ -81,6 +82,7 @@
         <li ng-repeat = "channel in UserPrivateChannels"
           ng-class = "{'active' : isActiveChannel(channel.name)}"
           ng-click = "setChannel(channel.name)" ng-show="showChannels">{{channel.name}}
+          <span class="badge" ng-show=(channel.mentions > 0)>{{channel.mentions}}</span><span class="badge" ng-show=(channel.notifications > 0)>{{channel.notifications}}</span>
           <button type="button" class="btn btn-default" aria-label="Left Align" ng-click="privateChannelRemove(channel.participanta,channel.participantb)">
             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
           </button>
@@ -160,7 +162,7 @@
       <!--threads will be shown here-->
       <ul id="listOfThreads" ng-show="showThreads">
         <p id = "loadPic" ng-show="loading"><img src = "./rolling.gif"></p>
-        <li ng-repeat = "thread in ThreadsToShow" ng-include="treeView.html">
+        <li ng-repeat = "thread in ThreadsToShow | limitTo : 10" ng-include="treeView.html">
         </li>
       </ul>
 

@@ -98,7 +98,7 @@ public class LoginServlet extends HttpServlet {
     							rs.getString(5));
     					userResult.setIslogged(true);
     					time = new Timestamp(System.currentTimeMillis());
-    					userResult.setLastlogged(time);
+    					userResult.setLastlogged(rs.getTimestamp(7));
     				}
     				rs.close();
     				stmt.close();

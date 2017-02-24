@@ -9,4 +9,5 @@ public class AppVariables {
 	//hashmap to keep tabs on what channels users are currently in
 		public static HashMap<String,ArrayList<User>> usersByChannel = new HashMap<String,ArrayList<User>>();
 		public static DatabaseConnection db;
+		public static int privateChatCounter;
 }

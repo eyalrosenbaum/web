@@ -9,12 +9,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -22,18 +26,20 @@ import com.google.gson.JsonParser;
 
 import JamSession.AppConstants;
 import JamSession.AppVariables;
+import models.PublicChannel;
+import models.User;
 
 /**
- * Servlet implementation class GetPublicMentionsServlet
+ * Servlet implementation class LogoutServlet
  */
-@WebServlet("/GetMentionsServlet")
-public class GetMentionsServlet extends HttpServlet {
+@WebServlet("/LogoutServlet")
+public class LogoutServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public GetMentionsServlet() {
+    public LogoutServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -42,7 +48,8 @@ public class GetMentionsServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+		// TODO Auto-generated method stub
+		response.getWriter().append("Served at: ").append(request.getContextPath());
 	}
 
 	/**
@@ -65,40 +72,54 @@ public class GetMentionsServlet extends HttpServlet {
 		while ((line = br.readLine()) !=null){
 			jsonDetails.append(line);
 		}
-
 		JsonParser parser = new JsonParser();
 		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
-
-		String userNickname = jsonObject.get("nickname").toString();
-		Timestamp previousLog = Timestamp.valueOf(jsonObject.get("previousLog").toString());
-		String channelName = jsonObject.get("channel").toString();
-
-		//finding number of new notifications in database according to channel name and previouslog
+		
+		String usernickname = jsonObject.get("userNickname").toString();
+		Timestamp date = new Timestamp(System.currentTimeMillis());
+		String channel = jsonObject.get("lastActiveChannel").toString();
+		
 		PreparedStatement stmt;
-		int mentions = 0;
-		String prefix = "@"+userNickname+"%";
 		try {
-			stmt = conn.prepareStatement(AppConstants.SELECT_MESSAGES_BY_DATE_AND_NICKNAME_AND_CHANNEL);
-			stmt.setString(1, channelName);
-			stmt.setTimestamp(2,previousLog);
-			stmt.setString(3, prefix);
-			ResultSet rs = stmt.executeQuery();
-			while (rs.next()){
-				mentions++;
-			}
-			rs.close();
+			stmt = conn.prepareStatement(AppConstants.UPDATE_UNLOGGED_USER_STMT);
+			stmt.setTimestamp(1, date);
+			stmt.setString(2, usernickname);
+			stmt.executeUpdate();
+			conn.commit();
 			stmt.close();
 			conn.close();
+			
+
 		} catch (SQLException e) {
-			getServletContext().log("Error while querying for mentions", e);
+			getServletContext().log("Error while updating users is logged status", e);
 			response.sendError(500);//internal server error
 		}
-		//convert from int  to json
-		String mentionsJsonResult = gson.toJson(mentions, Integer.class);
-
-		PrintWriter writer = response.getWriter();
-		writer.println(mentionsJsonResult);
-		writer.close();
+		//removing user from active users in channels hashmap
+		ArrayList<User> UserList = AppVariables.activeUsersByChannel.get(channel);
+		Iterator itr;
+		itr = UserList.iterator();
+		while(itr.hasNext()){
+			User user = (User)itr.next();
+			if (user.getUserNickname().equals(usernickname))
+				itr.remove();
+		}
+		AppVariables.activeUsersByChannel.put(channel, UserList);
+	try {
+		conn.close();
+	} catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
 	}
+	//send channels details to client
+	//convert from channel collection to json
 
+	PrintWriter writer = response.getWriter();
+	writer.println("success");
+	writer.close();
+	HttpSession session = request.getSession();
+	if (session != null){
+		session.removeAttribute(AppConstants.USERNAME);
+		session.invalidate();
+	}
+	}
 }

@@ -17,6 +17,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -26,11 +27,12 @@ import JamSession.AppConstants;
 import JamSession.AppVariables;
 import models.Message;
 import models.Subscription;
+import models.User;
 
 /**
  * Servlet implementation class GetThreadsServlet
  */
-@WebServlet("/GetThreadsServlet")
+@WebServlet("/GetThreadsServlet/channelName/*")
 public class GetThreadsServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -65,12 +67,38 @@ public class GetThreadsServlet extends HttpServlet {
 
 		JsonParser parser = new JsonParser();
 		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
-
-		String channelName = jsonObject.get("name").toString();
-
+		
+		String channelName = null;
+		String uri = request.getRequestURI();
+		if (uri.indexOf(AppConstants.CHANNELNAME)!=-1)
+			channelName = uri.substring(uri.indexOf(AppConstants.CHANNELNAME)+AppConstants.CHANNELNAME.length()+1);
+		if (channelName!=null)
+			channelName.replaceAll("\\%20", " ");
+		HttpSession session = request.getSession();
+		
+		String username = session.getAttribute(AppConstants.USERNAME).toString();
+		if (channelName!=null){
 		//finding messages in database according to channel name
 		PreparedStatement stmt;
 		Collection<Message> channelThreads = new ArrayList<Message>();
+		//updating that user has started participating in channel
+		ArrayList<User> users = AppVariables.activeUsersByChannel.get(channelName);
+		try {
+				stmt = conn.prepareStatement(AppConstants.SELECT_USER_BY_USERNAME_STMT);
+				stmt.setString(1,username);
+				ResultSet rs = stmt.executeQuery();
+				while (rs.next()){
+					users.add(new User(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4)
+							,rs.getString(5),rs.getBoolean(6),rs.getTimestamp(7)));
+				}
+				rs.close();
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				getServletContext().log("Error while querying for threads creators", e);
+				response.sendError(500);//internal server error
+			}
+		AppVariables.activeUsersByChannel.put(channelName, users);
 		try {
 			stmt = conn.prepareStatement(AppConstants.SELECT_THREADS_BY_CHANNEL);
 			stmt.setString(1, channelName);
@@ -125,6 +153,7 @@ public class GetThreadsServlet extends HttpServlet {
 		PrintWriter writer = response.getWriter();
 		writer.println(channelThreadsJsonResult);
 		writer.close();
+		}
 	}
 
 	/**

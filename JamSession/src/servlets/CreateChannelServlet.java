@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -20,6 +22,10 @@ import com.google.gson.JsonParser;
 import JamSession.AppConstants;
 import JamSession.AppVariables;
 import models.Channel;
+import models.PrivateChannel;
+import models.PublicChannel;
+import models.Subscription;
+import models.User;
 
 /**
  * Servlet implementation class CreatePublicChannelServlet
@@ -69,7 +75,7 @@ public class CreateChannelServlet extends HttpServlet {
 		JsonParser parser = new JsonParser();
 		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
 		
-		Channel newChannel = gson.fromJson(jsonObject, Channel.class);
+		PublicChannel newChannel = gson.fromJson(jsonObject, PublicChannel.class);
 		PreparedStatement stmt;
 			try {
 				stmt = conn.prepareStatement(AppConstants.INSERT_CHANNEL_STMT);
@@ -102,7 +108,37 @@ public class CreateChannelServlet extends HttpServlet {
 				getServletContext().log("Error while inserting new channel", e);
 	    		response.sendError(500);//internal server error
 			}
-    		writer.println("success");
+			ArrayList<User> newChannelUsers = new ArrayList<User>();
+			try {
+				stmt = conn.prepareStatement(AppConstants.SELECT_USER_BY_USERNAME_STMT);
+				stmt.setString(1, newChannel.getChannelCreator());
+				ResultSet rs = stmt.executeQuery();
+				while(rs.next())
+					newChannelUsers.add(new User(rs.getString(1),rs.getString(2),rs.getString(3),
+							rs.getString(4),rs.getString(5),rs.getBoolean(6),rs.getTimestamp(7)));
+				stmt.close();
+			} catch (SQLException e) {
+				getServletContext().log("Error while fetching user", e);
+	    		response.sendError(500);//internal server error
+			}
+			AppVariables.usersByChannel.put(newChannel.getChannelName(), newChannelUsers);
+			Subscription newsub = null;
+			try {
+				stmt = conn.prepareStatement(AppConstants.SELECT_SUBSCRIPTIONS_BY_USERNAME_AND_CHANNEL);
+				stmt.setString(1, newChannel.getChannelCreator());
+				stmt.setString(2, newChannel.getChannelName());
+				ResultSet rs = stmt.executeQuery();
+				while(rs.next())
+					newsub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),models.Type.PUBLIC);
+				stmt.close();
+			} catch (SQLException e) {
+				getServletContext().log("Error while fetching user", e);
+	    		response.sendError(500);//internal server error
+			}
+			
+			//convert from channel to json
+			String publicchannelJsonResult = gson.toJson(newsub, Subscription.class);
+    		writer.println(publicchannelJsonResult);
     	}
     	else
     		writer.println("fail");
@@ -116,7 +152,7 @@ public class CreateChannelServlet extends HttpServlet {
 		
 	}
 	
-	protected boolean checkSuccessful(Channel channel) {
+	protected boolean checkSuccessful(PublicChannel channel) {
 		Connection conn = null;
 		try {
 			conn = AppVariables.db.getConnection();

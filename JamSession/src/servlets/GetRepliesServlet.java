@@ -28,7 +28,7 @@ import models.Message;
 /**
  * Servlet implementation class GetRepliesServlet
  */
-@WebServlet("/GetRepliesServlet")
+@WebServlet("/GetRepliesServlet/threadID/*")
 public class GetRepliesServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -64,7 +64,10 @@ public class GetRepliesServlet extends HttpServlet {
 		JsonParser parser = new JsonParser();
 		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
 
-		int threadid = Integer.parseInt(jsonObject.get("thread_id").toString());
+		Integer threadid = null;
+		String uri = request.getRequestURI();
+		if (uri.indexOf(AppConstants.THREADID)!=-1)
+			threadid = Integer.parseInt(uri.substring(uri.indexOf(AppConstants.THREADID)+AppConstants.THREADID.length()+1));
 
 		//finding messages in database according to channel name
 		PreparedStatement stmt;

@@ -55,6 +55,7 @@ public class FindSubscriptionsServlet extends HttpServlet {
 
 		HttpSession session = request.getSession();
 		String userName = (String) session.getAttribute(AppConstants.USERNAME);
+		String userNickname = (String) session.getAttribute(AppConstants.USERNICKNAME);
 		
 		//finding subscriptions in database according to username
 		PreparedStatement stmt;

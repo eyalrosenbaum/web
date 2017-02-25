@@ -136,6 +136,9 @@ public class LoginServlet extends HttpServlet {
 	        	PrintWriter writer = response.getWriter();
 	        	writer.println(userJsonresult);
 	        	writer.close();
+	        	//setting session attribute - username for future actions
+    			session.setAttribute(AppConstants.USERNAME, userResult.getUserName());
+    			session.setAttribute(AppConstants.USERNICKNAME, userResult.getUserNickname());
 			}
     		
     	} catch (SQLException e) {

@@ -95,6 +95,7 @@ public class User {
 	public void setLastlogged(Timestamp lastlogged) {
 		this.lastlogged = lastlogged;
 	}
+
 	
 
 	

@@ -1,11 +1,15 @@
 package models;
 
+import java.sql.Timestamp;
+
 public class Subscription {
 	private int id;
 	private String username;
 	private String channel;
 	private Type type;
+	private Timestamp date;
 	
+
 	//constructor to create new subscription of user to channel
 	public Subscription(String username, String channel,Type type) {
 		super();
@@ -56,6 +60,13 @@ public class Subscription {
 	}
 	
 	
-	
+
+	public Timestamp getDate() {
+		return date;
+	}
+
+	public void setDate(Timestamp date) {
+		this.date = date;
+	}
 	
 }

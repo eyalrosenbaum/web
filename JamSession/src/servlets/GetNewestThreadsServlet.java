@@ -17,6 +17,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -25,11 +26,12 @@ import com.google.gson.JsonParser;
 import JamSession.AppConstants;
 import JamSession.AppVariables;
 import models.Message;
+import models.Subscription;
 
 /**
  * Servlet implementation class GetNewestThreadsServlet
  */
-@WebServlet("/GetNewestThreadsServlet")
+@WebServlet("/GetNewestThreadsServlet/channelName/*")
 public class GetNewestThreadsServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -64,16 +66,44 @@ public class GetNewestThreadsServlet extends HttpServlet {
 
 		JsonParser parser = new JsonParser();
 		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
-
-		String channelName = jsonObject.get("name").toString();
-		Timestamp date = Timestamp.valueOf(jsonObject.get("date").toString());
-
+		String channelName = null;
+		String uri = request.getRequestURI();
+		if (uri.indexOf(AppConstants.CHANNELNAME)!=-1)
+			channelName = uri.substring(uri.indexOf(AppConstants.CHANNELNAME)+AppConstants.CHANNELNAME.length()+1);
+		if (channelName!=null)
+			channelName.replaceAll("\\%20", " ");
+		HttpSession session = request.getSession();
+		
+		String username = session.getAttribute(AppConstants.USERNAME).toString();
+		Timestamp dateSubscribed = null;
+		Subscription sub = null;
 		//finding messages in database according to channel name
 		PreparedStatement stmt;
 		Collection<Message> channelThreads = new ArrayList<Message>();
 		try {
+			stmt = conn.prepareStatement(AppConstants.SELECT_SUBSCRIPTIONS_BY_USERNAME_AND_CHANNEL);
+			stmt.setString(1, username);
+			stmt.setString(2, channelName);
+			
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+				if (rs.getString(4).equals("public"))
+				sub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),models.Type.PUBLIC);
+				else
+					sub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),models.Type.PRIVATE);
+			}
+			dateSubscribed = sub.getDate();
+			rs.close();
+			stmt.close();
+			conn.close();
+		} catch (SQLException e) {
+			getServletContext().log("Error while querying for messages", e);
+			response.sendError(500);//internal server error
+		}
+		try {
 			stmt = conn.prepareStatement(AppConstants.SELECT_THREADS_BY_CHANNEL);
 			stmt.setString(1, channelName);
+			stmt.setTimestamp(2, dateSubscribed);
 			//stmt.setTimestamp(2, date);
 			stmt.setMaxRows(10);
 			ResultSet rs = stmt.executeQuery();

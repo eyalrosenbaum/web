@@ -56,6 +56,7 @@ public class FindPrivateChannelsServlet extends HttpServlet {
 
 		HttpSession session = request.getSession();
 		String userName = (String) session.getAttribute(AppConstants.USERNAME);
+		String nicknameValue = (String) session.getAttribute(AppConstants.USERNICKNAME);
 		
 		//reading user details from the request
 		BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
@@ -68,7 +69,6 @@ public class FindPrivateChannelsServlet extends HttpServlet {
 		JsonParser parser = new JsonParser();
 		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
 		
-		String nicknameValue = jsonObject.get("userNickname").toString();
 		
 		//finding subscriptions in database according to username
 		PreparedStatement stmt;

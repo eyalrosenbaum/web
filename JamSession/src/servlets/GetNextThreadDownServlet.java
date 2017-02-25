@@ -23,6 +23,7 @@ import com.google.gson.JsonParser;
 import JamSession.AppConstants;
 import JamSession.AppVariables;
 import models.Message;
+import models.Subscription;
 
 /**
  * Servlet implementation class GetNextThreadDownServlet
@@ -43,6 +44,13 @@ public class GetNextThreadDownServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Gson gson = new Gson();
 		Connection conn = null;
 		try {
@@ -65,11 +73,34 @@ public class GetNextThreadDownServlet extends HttpServlet {
 
 		String channelName = jsonObject.get("name").toString();
 		Timestamp date = Timestamp.valueOf(jsonObject.get("date").toString());
-
+		String username = jsonObject.get("username").toString();
+		Timestamp dateSubscribed = null;
+		Subscription sub = null;
 		//finding messages in database according to channel name
 		PreparedStatement stmt;
 		Message channelThread = null;
 		try {
+			stmt = conn.prepareStatement(AppConstants.SELECT_SUBSCRIPTIONS_BY_USERNAME_AND_CHANNEL);
+			stmt.setString(1, username);
+			stmt.setString(2, channelName);
+			
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+				if (rs.getString(4).equals("public"))
+				sub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),models.Type.PUBLIC);
+				else
+					sub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),models.Type.PRIVATE);
+			}
+			dateSubscribed = sub.getDate();
+			rs.close();
+			stmt.close();
+			conn.close();
+		} catch (SQLException e) {
+			getServletContext().log("Error while querying for messages", e);
+			response.sendError(500);//internal server error
+		}
+		try {
+			if((date.after(dateSubscribed))||(date.equals(dateSubscribed))){
 			stmt = conn.prepareStatement(AppConstants.SELECT_THREADS_BY_CHANNEL_AND_DATE_ASC);
 			stmt.setString(1, channelName);
 			stmt.setTimestamp(2, date);
@@ -82,6 +113,7 @@ public class GetNextThreadDownServlet extends HttpServlet {
 			rs.close();
 			stmt.close();
 			conn.close();
+			}
 		} catch (SQLException e) {
 			getServletContext().log("Error while querying for messages", e);
 			response.sendError(500);//internal server error
@@ -122,14 +154,6 @@ public class GetNextThreadDownServlet extends HttpServlet {
 		PrintWriter writer = response.getWriter();
 		writer.println(channelThreadsJsonResult);
 		writer.close();
-	}
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(request, response);
 	}
 
 }

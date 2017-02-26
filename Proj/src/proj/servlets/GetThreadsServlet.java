@@ -82,6 +82,8 @@ public class GetThreadsServlet extends HttpServlet {
 		Collection<Message> channelThreads = new ArrayList<Message>();
 		//updating that user has started participating in channel
 		ArrayList<User> users = AppVariables.activeUsersByChannel.get(channelName);
+		if (users == null)
+			users = new ArrayList<User>();
 		try {
 				stmt = conn.prepareStatement(AppConstants.SELECT_USER_BY_USERNAME_STMT);
 				stmt.setString(1,username);

@@ -64,7 +64,7 @@ public interface AppConstants {
 	
 	public final String CREATE_MESSAGES_TABLE = "CREATE TABLE MESSAGES("
 			+ "id integer not null generated always as identity (start with 1, increment by 1) primary key,"
-			+ "author not null varchar(20),"
+			+ "author varchar(20) not null ,"
 			+ "channel varchar(100),"
 			+ "content varchar(500),"
 			+ "isthread boolean not null,"
@@ -78,11 +78,11 @@ public interface AppConstants {
 	public final String CREATE_SUBSCRIPTIONS_TABLE = "CREATE TABLE SUBSCRIPTIONS("
 			+ "id integer not null generated always as identity (start with 1, increment by 1) primary key,"
 			+ "username varchar(10) not null references users(username) on delete cascade,"
-			+ "channel varchar(100) not null references channels(name) on delete cascade),"
+			+ "channel varchar(100) not null references channels(name) on delete cascade,"
 			+ "type varchar(10) not null,"
 			+ "date timestamp not null)";
 	
-	public final String INSERT_SUBSCRIPTIONS = "INSERT INTO SUBSCRIPTIONS VALUES(?,?,?)";
+	public final String INSERT_SUBSCRIPTIONS = "INSERT INTO SUBSCRIPTIONS VALUES(?,?,?,?)";
 	
 	public final String UPDATE_LOGGED_USER_STMT = "UPDATE USERS SET ISLOGGED = TRUE, LASTLOGGED = ? WHERE USERNICKNAME = ?";
 	public final String UPDATE_UNLOGGED_USER_STMT = "UPDATE USERS SET ISLOGGED = FALSE, LASTLOGGED = ? WHERE USERNICKNAME = ?";

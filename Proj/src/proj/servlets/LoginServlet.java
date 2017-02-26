@@ -106,6 +106,8 @@ try {
 	    				//we also enter the user to the general channel current users
 	    				//updating our list of users for general channel
 	    				ArrayList<User> currentList = AppVariables.usersByChannel.get(AppConstants.GENERAL_CHANNEL);
+	    				if (currentList == null)
+	    					currentList = new ArrayList<User>();
 	    				currentList.add(userResult);
 		    			AppVariables.usersByChannel.put(AppConstants.GENERAL_CHANNEL, currentList);
 		    			conn.commit();

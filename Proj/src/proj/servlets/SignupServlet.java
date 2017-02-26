@@ -137,6 +137,8 @@ public class SignupServlet extends HttpServlet {
     				Subscription firstSubscription = new Subscription(user.getUserName(),AppConstants.GENERAL_CHANNEL,proj.models.Type.PUBLIC);
 	    			//updating our list of users for general channel
     				ArrayList<User> currentList = AppVariables.usersByChannel.get(firstSubscription.getChannel());
+    				if (currentList == null)
+    					currentList = new ArrayList<User>();
     				currentList.add(user);
 	    			AppVariables.usersByChannel.put(firstSubscription.getChannel(), currentList);
     				//entering the general channel subscription for this user

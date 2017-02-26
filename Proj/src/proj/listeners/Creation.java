@@ -370,7 +370,7 @@ ServletContext cntx = event.getServletContext();
    	 try {
     		//obtain CustomerDB data source from Tomcat's context and shutdown
     		Context context = new InitialContext();
-    		BasicDataSource ds = (BasicDataSource)context.lookup("java:comp/env/jdbc/JamSessionDatasource");
+    		BasicDataSource ds = (BasicDataSource)context.lookup("java:comp/env/jdbc/projDatasourceOpen");
    // 				cntx.getInitParameter(AppConstants.DB_NAME) + AppConstants.SHUTDOWN);
     		ds.getConnection();
     		ds = null;

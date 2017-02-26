@@ -9,6 +9,14 @@ public abstract class Channel {
 	private String channelCreator;
 	private Timestamp channelCreationTime;
 
+	public Channel(){
+		super();
+		this.channelName = "";
+		this.channelType = proj.models.Type.PUBLIC;
+		this.channelCreator = "";
+		channelCreationTime = new Timestamp(System.currentTimeMillis());
+	}
+	
 	public Channel(Type channelType, String channelName, String channelCreator, 
 			Timestamp channelCreationTime) {
 		super();

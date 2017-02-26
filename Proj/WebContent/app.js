@@ -131,27 +131,27 @@
 		/*scope variables to bind and retrieve data from index.html*/
 		if ((sessionStorage.getItem("userName"))==null)
 			sessionStorage.setItem("userName",JSON.stringify(""));
-		$scope.userName=JSON.parse(sessionStorage.getItem("userName"));
+		$scope.userName=(sessionStorage.getItem("userName"));
 		console.log("userName is "+$scope.userName);
 
 		if ((sessionStorage.getItem("password"))==null)
 			sessionStorage.setItem("password",JSON.stringify(""));
-		$scope.password=JSON.parse(sessionStorage.getItem("password"));
+		$scope.password=(sessionStorage.getItem("password"));
 		console.log("password is "+$scope.password);
 
 		if ((sessionStorage.getItem("userNickname"))==null)
 			sessionStorage.setItem("userNickname",JSON.stringify(""));
-		$scope.userNickname=JSON.parse(sessionStorage.getItem("userNickname"));
+		$scope.userNickname=(sessionStorage.getItem("userNickname"));
 		console.log("userNickname is "+$scope.userNickname);
 
 		if ((sessionStorage.getItem("userDescription"))==null)
 			sessionStorage.setItem("userDescription",JSON.stringify(""));
-		$scope.userDescription=JSON.parse(sessionStorage.getItem("userDescription"));
+		$scope.userDescription=(sessionStorage.getItem("userDescription"));
 		console.log("userDescription is "+$scope.userDescription);
 
 		if ((sessionStorage.getItem("photoURL"))==null)
 			sessionStorage.setItem("photoURL",JSON.stringify(""));
-		$scope.photoURL=JSON.parse(sessionStorage.getItem("photoURL"));
+		$scope.photoURL=(sessionStorage.getItem("photoURL"));
 		console.log("photoURL is "+$scope.photoURL);
 
 		if ((sessionStorage.getItem("lastLogged"))==null)
@@ -249,6 +249,49 @@
 		// 		}
 		// 	}
 		// }
+		/*function that gets user's public channels on login*/
+		$scope.getUserPublicChannels = function(nickname){
+			$http({
+				method: 'GET',
+				url: 'http://localhost:8080/Proj/FindSubscriptionServlet',
+			}).then(
+					function(data){
+						for (x in data){
+							$scope.UserPublicChannels.push(data.x);
+						}
+
+						for(i=0;i<$scope.UserPublicChannels.length;i++){
+							($scope.UserPublicChannels[i]).setAttribute(mentions,0);
+							($scope.UserPublicChannels[i]).setAttribute(notifications,0);
+							($scope.UserPublicChannels[i]).notifications = updateNotificationsOnLoadPublic($scope.UserPublicChannels[i]);
+							($scope.UserPublicChannels[i]).mentions = updateMentionsOnLoadPublic($scope.UserPublicChannels[i]);
+
+							sessionStorage.setItem("UserPublicChannels",JSON.stringify($scope.UserPublicChannels));
+
+						}
+					});
+		};
+
+		/*function that gets user's private channels on login*/
+		$scope.getUserPrivateChannels = function(nickname){
+			$http({
+				method: 'GET',
+				url: 'http://localhost:8080/Proj/FindPrivateChannelsServlet',
+			}).then(
+					function(data){
+						for (x in data){
+							$scope.UserPrivateChannels.push(data.x);
+						}
+						for(i=0;i<$scope.UserPublicChannels.length;i++){
+							($scope.UserPrivateChannels[i]).setAttribute(mentions,0);
+							($scope.UserPrivateChannels[i]).setAttribute(notifications,0);
+							($scope.UserPrivateChannels[i]).notifications = updateNotificationsOnLoadPrivate(($scope.UserPrivateChannels[i]));
+							($scope.UserPrivateChannels[i]).mentions = updateMentionsOnLoadPrivate(($scope.UserPrivateChannels[i]));
+						}
+						sessionStorage.setItem("UserPrivateChannels",JSON.stringify($scope.UserPrivateChannels));
+
+					});
+		};
 
 		/*method activated when user tries to login to site*/
 		$scope.userLogin = function(){
@@ -258,7 +301,7 @@
 			};
 			$http({
 				method: 'POST',
-				url: '/LoginServlet',
+				url: "http://localhost:8080/Proj/LoginServlet",
 				data: userCredentials
 			}).then(
 					function(data){
@@ -281,8 +324,8 @@
 							$scope.lastLogged =JSON.parse(sessionStorage.getItem("lastLogged"));
 							sessionStorage.setItem("welcomeScreen",JSON.stringify(false));
 						$scope.welcomeScreen=JSON.parse(sessionStorage.getItem("welcomeScreen"));
-							getUserPublicChannels($scope.user.userNickname);
-							getUserPrivateChannels($scope.user.userNickname);
+							$scope.getUserPublicChannels($scope.userNickname);
+							$scope.getUserPrivateChannels($scope.userNickname);
 							sessionStorage.setItem("showChannels",JSON.stringify(true));
 						$scope.showChannels = JSON.parse(sessionStorage.getItem("showChannels"));
 						}
@@ -298,12 +341,13 @@
 					userDescription : $scope.userDescription,
 					userPhotoURL : $scope.photoURL
 			};
-			$http({
-				method: 'POST',
-				url: window.location.host+ '/SignupServlet',
-				data: newUserDetails
-			}).then(
+			$http.post(//{
+				/*method: 'POST',
+				url: */"http://localhost:8080/Proj/SignupServlet",
+				/*data: */JSON.stringify(newUserDetails)
+		/*	}*/).then(
 					function(data){
+						//data = JSON.parse(data);
 						if (data != null){
 							if ((data.userName == "Error username taken")||(data.userName == "Error nickname taken")){
 								sessionStorage.setItem("ErrorExists",JSON.stringify(true));
@@ -313,16 +357,16 @@
 							}
 							else{
 								sessionStorage.setItem("userName",JSON.stringify(data.userName));
-								$scope.userName=JSON.parse(sessionStorage.getItem("userName"));
+								$scope.userName = (sessionStorage.getItem("userName"));
 								sessionStorage.setItem("password",JSON.stringify(data.password));
-								$scope.password=JSON.parse(sessionStorage.getItem("password"));
+								$scope.password=(sessionStorage.getItem("password"));
 								sessionStorage.setItem("userNickname",JSON.stringify(data.userNickname));
-								$scope.userNickname=JSON.parse(sessionStorage.getItem("userNickname"));
+								$scope.userNickname=(sessionStorage.getItem("userNickname"));
 								sessionStorage.setItem("userDescription",JSON.stringify(data.userDescription));
-								$scope.userDescription=JSON.parse(sessionStorage.getItem("userDescription"));
+								$scope.userDescription=(sessionStorage.getItem("userDescription"));
 
 								sessionStorage.setItem("photoURL",JSON.stringify(data.photoURL));
-								$scope.photoURL=JSON.parse(sessionStorage.getItem("photoURL"));
+								$scope.photoURL=(sessionStorage.getItem("photoURL"));
 								$scope.islogged = data.islogged;
 								sessionStorage.setItem("lastLogged",JSON.stringify(new Date(data.lastLogged)));
 								$scope.lastLogged =JSON.parse(sessionStorage.getItem("lastLogged"));
@@ -330,8 +374,8 @@
 								$scope.lastlastlogged = JSON.parse(sessionStorage.getItem("lastlastlogged"));
 								sessionStorage.setItem("welcomeScreen",JSON.stringify(false));
 							$scope.welcomeScreen=JSON.parse(sessionStorage.getItem("welcomeScreen"));
-								getUserPublicChannels($scope.user.userNickname);
-								getUserPrivateChannels($scope.user.userNickname);
+								$scope.getUserPublicChannels($scope.userNickname);
+								$scope.getUserPrivateChannels($scope.userNickname);
 								sessionStorage.setItem("showChannels",JSON.stringify(true));
 							$scope.showChannels = JSON.parse(sessionStorage.getItem("showChannels"));
 							}
@@ -347,7 +391,7 @@
 			};
 			$http({
 				method: 'POST',
-				url: '/LogoutServlet',
+				url: 'http://localhost:8080/Proj/LogoutServlet',
 				data: UserDetails
 			}).then(
 					function(data){
@@ -376,49 +420,7 @@
 					});
 		};
 
-		/*function that gets user's public channels on login*/
-		$scope.getUserPublicChannels = function(nickname){
-			$http({
-				method: 'GET',
-				url: '/FindSubscriptionServlet',
-			}).then(
-					function(data){
-						for (x in data){
-							$scope.UserPublicChannels.push(data.x);
-						}
 
-						for(i=0;i<$scope.UserPublicChannels.length;i++){
-							($scope.UserPublicChannels[i]).setAttribute(mentions,0);
-							($scope.UserPublicChannels[i]).setAttribute(notifications,0);
-							($scope.UserPublicChannels[i]).notifications = updateNotificationsOnLoadPublic($scope.UserPublicChannels[i]);
-							($scope.UserPublicChannels[i]).mentions = updateMentionsOnLoadPublic($scope.UserPublicChannels[i]);
-
-							sessionStorage.setItem("UserPublicChannels",JSON.stringify($scope.UserPublicChannels));
-
-						}
-					});
-		};
-
-		/*function that gets user's private channels on login*/
-		$scope.getUserPrivateChannels = function(nickname){
-			$http({
-				method: 'GET',
-				url: '/FindPrivateChannelsServlet',
-			}).then(
-					function(data){
-						for (x in data){
-							$scope.UserPrivateChannels.push(data.x);
-						}
-						for(i=0;i<$scope.UserPublicChannels.length;i++){
-							($scope.UserPrivateChannels[i]).setAttribute(mentions,0);
-							($scope.UserPrivateChannels[i]).setAttribute(notifications,0);
-							($scope.UserPrivateChannels[i]).notifications = updateNotificationsOnLoadPrivate(($scope.UserPrivateChannels[i]));
-							($scope.UserPrivateChannels[i]).mentions = updateMentionsOnLoadPrivate(($scope.UserPrivateChannels[i]));
-						}
-						sessionStorage.setItem("UserPrivateChannels",JSON.stringify($scope.UserPrivateChannels));
-
-					});
-		};
 
 		``  /*function that removes a specific public channel from a user's channels*/
 		$scope.publicChannelRemove = function(channelName){
@@ -429,7 +431,7 @@
 			}
 			$http({
 				method: 'POST',
-				url: '/UnsubscribeServlet',
+				url: 'http://localhost:8080/Proj/UnsubscribeServlet',
 				data: subscription
 			}).then(
 					function(data){
@@ -453,7 +455,7 @@
 			}
 			$http({
 				method: 'POST',
-				url: '/RemovePrivateChannelServlet',
+				url: 'http://localhost:8080/Proj/RemovePrivateChannelServlet',
 				data: subscription
 			}).then(
 					function(data){
@@ -476,7 +478,7 @@
 			var arr =[];
 			$http({
 				method: 'GET',
-				url: '/GetThreadsServlet/channelName/'+channelName
+				url: 'http://localhost:8080/Proj/GetThreadsServlet/channelName/'+channelName
 			}).then(
 					function(data){
 						if (data != null){
@@ -523,7 +525,7 @@
 			}
 			$http({
 				method: 'POST',
-				url: '/GetPrivateChatServlet',
+				url: 'http://localhost:8080/Proj/GetPrivateChatServlet',
 				data: credentials
 			}).then(
 					function(data){
@@ -540,7 +542,7 @@
 							};
 							$http({
 								method: 'POST',
-								url: '/CreatePrivateChatServlet',
+								url: 'http://localhost:8080/Proj/CreatePrivateChatServlet',
 								data: channelDetails
 							}).then(
 									function(data){
@@ -560,7 +562,7 @@
 			var arr =[];
 			$http({
 				method: 'GET',
-				url: '/GetNewestThreadsServlet/channelName/'+channelName
+				url: 'http://localhost:8080/Proj/GetNewestThreadsServlet/channelName/'+channelName
 			}).then(
 					function(data){
 						if (data != null){
@@ -594,7 +596,7 @@
 			var arr =[];
 			$http({
 				method: 'POST',
-				url: '/GetNextTenThreadsUpServlet',
+				url: 'http://localhost:8080/Proj/GetNextTenThreadsUpServlet',
 				data: channelToGet
 			}).then(
 					function(data){
@@ -638,7 +640,7 @@
 			var arr =[];
 			$http({
 				method: 'POST',
-				url: '/GetNextTenThreadsDownServlet',
+				url: 'http://localhost:8080/Proj/GetNextTenThreadsDownServlet',
 				data: channelToGet
 			}).then(
 					function(data){
@@ -680,7 +682,7 @@
 			var arr =[];
 			$http({
 				method: 'POST',
-				url: '/GetNextThreadUpServlet',
+				url: 'http://localhost:8080/Proj/GetNextThreadUpServlet',
 				data: channelToGet
 			}).then(
 					function(data){
@@ -718,7 +720,7 @@
 			var arr =[];
 			$http({
 				method: 'POST',
-				url: '/GetNextThreadDownServlet',
+				url: 'http://localhost:8080/Proj/GetNextThreadDownServlet',
 				data: channelToGet
 			}).then(
 					function(data){
@@ -768,7 +770,7 @@
 			var arr =[];
 			$http({
 				method: 'GET',
-				url: '/GetRepliesServlet/threadID/'+thread_id
+				url: 'http://localhost:8080/Proj/GetRepliesServlet/threadID/'+thread_id
 			}).then(
 					function(data){
 						if (data != null){
@@ -824,7 +826,7 @@
 				/*adding new thread to database*/
 				$http({
 					method: 'POST',
-					url: '/PostThreadServlet',
+					url: 'http://localhost:8080/Proj/PostThreadServlet',
 					data: message
 				}).then(
 						function(data){
@@ -852,7 +854,7 @@
 				/*adding new message to database*/
 				$http({
 					method: 'POST',
-					url: '/PostReplyServlet',
+					url: 'http://localhost:8080/Proj/PostReplyServlet',
 					data: message
 				}).then(
 						function(data){
@@ -932,7 +934,7 @@
 			/*adding new message to database*/
 			$http({
 				method: 'POST',
-				url: '/GetNotificationsServlet',
+				url: 'http://localhost:8080/Proj/GetNotificationsServlet',
 				data: userDetails
 			}).then(
 					function(data){
@@ -953,7 +955,7 @@
 			/*adding new message to database*/
 			$http({
 				method: 'POST',
-				url: '/GetMentionsServlet',
+				url: 'http://localhost:8080/Proj/GetMentionsServlet',
 				data: userDetails
 			}).then(
 					function(data){
@@ -974,7 +976,7 @@
 			/*adding new message to database*/
 			$http({
 				method: 'POST',
-				url: '/GetNotificationsServlet',
+				url: 'http://localhost:8080/Proj/GetNotificationsServlet',
 				data: userDetails
 			}).then(
 					function(data){
@@ -995,7 +997,7 @@
 			/*adding new message to database*/
 			$http({
 				method: 'POST',
-				url: '/GetMentionsServlet',
+				url: 'http://localhost:8080/Proj/GetMentionsServlet',
 				data: userDetails
 			}).then(
 					function(data){
@@ -1024,7 +1026,7 @@
 			/*adding new message to database*/
 			$http({
 				method: 'POST',
-				url: '/CreateChannelServlet',
+				url: 'http://localhost:8080/Proj/CreateChannelServlet',
 				data: newChannelDetails
 			}).then(
 					function(data){
@@ -1051,7 +1053,7 @@
 			}
 			$http({
 				method: 'POST',
-				url: '/SearchPublicChannelsServlet',
+				url: 'http://localhost:8080/Proj/SearchPublicChannelsServlet',
 				data: searchInfo
 			}).then(
 					function(data){
@@ -1079,7 +1081,7 @@
 			}
 			$http({
 				method: 'POST',
-				url: '/PublicChannelSubscribeServlet',
+				url: 'http://localhost:8080/Proj/PublicChannelSubscribeServlet',
 				data: subscriptionInfo
 			}).then(
 					function(data){

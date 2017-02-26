@@ -19,7 +19,7 @@ public class DatabaseConnection {
 		super();
 		this.cntx = cntx;
 		Context context = new InitialContext();
-		this.ds = (BasicDataSource)context.lookup("java:comp/env/jdbc/projDatasource");
+		this.ds = (BasicDataSource)context.lookup("java:comp/env/jdbc/projDatasourceOpen");
 	//			cntx.getInitParameter(AppConstants.DB_NAME) + AppConstants.OPEN);
 	}
 	

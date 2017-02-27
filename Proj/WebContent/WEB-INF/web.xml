@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
+   <resource-ref>
+    <res-ref-name>jdbc/projDatasource</res-ref-name>
+    <res-type>javax.sql.DataSource</res-type>
+    <res-auth>Container</res-auth>
+  </resource-ref>
   <display-name>Proj</display-name>
   <context-param>
-    <param-name>projDatasource</param-name>
-    <param-value>java:comp/env/jdbc/ProjDatasource</param-value>
+    <param-name>DB_DATASOURCE</param-name>
+    <param-value>java:comp/env/jdbc/projDatasource</param-value>
   </context-param>
   <context-param>
     <param-name>projDB</param-name>
-    <param-value>java:comp/env/jdbc/ProjDB</param-value>
+    <param-value>java:comp/env/jdbc/projectDB</param-value>
   </context-param>
   <context-param>
-    <param-name>DatabaseName</param-name>
+    <param-name>DB_NAME</param-name>
     <param-value>projDB</param-value>
   </context-param>
   <listener>

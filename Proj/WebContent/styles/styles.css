@@ -46,8 +46,8 @@ margin-bottom: 2%;
   background-color: currentColor;
   padding-top: 2%;
   padding-bottom: 2%;
-  width: 50%;
-  height:500px;
+  width: 40%;
+  height:550px;
 }
 
 #top{
@@ -194,8 +194,14 @@ input.textarea{
   line-height: 1;
 }
 #message-form{
-  position:relative;
-  width: 90%;
+  position: fixed;
+    width: 76%;
+    bottom: 3%;
+    left: 20%;
+}
+
+h6{
+  color: coral;
 }
 #message-input{
     position: absolute;
@@ -226,6 +232,28 @@ input.textarea{
 
 }
 
+#channelSearch{
+  position: fixed;
+    width: 30%;
+    right: 3%;
+    top: 7%;
+}
+
+#searchForm{
+  position: fixed;
+    top: 13%;
+    right: 10%;
+    font-size: small;
+    color: coral;
+}
+
+#logout{
+  position: fixed;
+right: 1%;
+top: 15%;
+font-size: small;
+color: coral;
+}
 #footer{
   position: fixed;
   left:53px;

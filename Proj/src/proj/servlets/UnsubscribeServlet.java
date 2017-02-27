@@ -102,6 +102,15 @@ public class UnsubscribeServlet extends HttpServlet {
 				userlist.remove(userToDelete);
 		}
 		AppVariables.usersByChannel.put(subscriptionToDelete.getChannel(), userlist);
+		userlist = AppVariables.activeUsersByChannel.get(subscriptionToDelete.getChannel());
+		itr = userlist.iterator();
+		userToDelete = null;
+		while(itr.hasNext()){
+			userToDelete = (User) itr.next();
+			if (userToDelete.getUserName().equals(subscriptionToDelete.getUsername()))
+				userlist.remove(userToDelete);
+		}
+		AppVariables.activeUsersByChannel.put(subscriptionToDelete.getChannel(), userlist);
 	}
 	else
 		writer.println("fail");

@@ -70,7 +70,6 @@ public class GetNotificationsServlet extends HttpServlet {
 		JsonParser parser = new JsonParser();
 		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
 
-		String userNickname = jsonObject.get("nickname").toString();
 		Timestamp previousLog = Timestamp.valueOf(jsonObject.get("previousLog").toString());
 		String channelName = jsonObject.get("channel").toString();
 

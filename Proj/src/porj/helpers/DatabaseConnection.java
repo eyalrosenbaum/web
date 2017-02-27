@@ -13,14 +13,15 @@ import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
 
 public class DatabaseConnection {
 	private ServletContext cntx;
-	private BasicDataSource ds;
+	public BasicDataSource ds;
 
 	private DatabaseConnection(ServletContext cntx) throws NamingException, SQLException {
 		super();
 		this.cntx = cntx;
 		Context context = new InitialContext();
-		this.ds = (BasicDataSource)context.lookup("java:comp/env/jdbc/projDatasourceOpen");
-	//			cntx.getInitParameter(AppConstants.DB_NAME) + AppConstants.OPEN);
+		this.ds = (BasicDataSource)context.lookup(
+				cntx.getInitParameter(AppConstants.DB_DATASOURCE) + AppConstants.OPEN);
+		
 	}
 	
 	public static void createDB(ServletContext cntx) throws NamingException, SQLException{
@@ -29,7 +30,8 @@ public class DatabaseConnection {
 		
 	}
 	public Connection getConnection() throws SQLException{
-		Connection conn = this.ds.getConnection();
+		
+		Connection conn = ds.getConnection();
 		return conn;
 	}
 }

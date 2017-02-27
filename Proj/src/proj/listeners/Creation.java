@@ -70,41 +70,7 @@ public class Creation implements ServletContextListener, ServletContextAttribute
         }
         return exists;
     }
-	/**
-     * @see HttpSessionListener#sessionCreated(HttpSessionEvent)
-     */
-    public void sessionCreated(HttpSessionEvent arg0)  { 
-         // TODO Auto-generated method stub
-    }
-
-	/**
-     * @see ServletContextAttributeListener#attributeRemoved(ServletContextAttributeEvent)
-     */
-    public void attributeRemoved(ServletContextAttributeEvent arg0)  { 
-         // TODO Auto-generated method stub
-    }
-
-	/**
-     * @see ServletRequestAttributeListener#attributeAdded(ServletRequestAttributeEvent)
-     */
-    public void attributeAdded(ServletRequestAttributeEvent arg0)  { 
-         // TODO Auto-generated method stub
-    }
-
-	/**
-     * @see HttpSessionAttributeListener#attributeReplaced(HttpSessionBindingEvent)
-     */
-    public void attributeReplaced(HttpSessionBindingEvent arg0)  { 
-         // TODO Auto-generated method stub
-    }
-
-	/**
-     * @see HttpSessionActivationListener#sessionWillPassivate(HttpSessionEvent)
-     */
-    public void sessionWillPassivate(HttpSessionEvent arg0)  { 
-         // TODO Auto-generated method stub
-    }
-
+	
 	/**
      * @see ServletContextListener#contextInitialized(ServletContextEvent)
      */
@@ -181,6 +147,7 @@ ServletContext cntx = event.getServletContext();
     			//check if exception thrown since table was already created (so we created the database already 
     			//in the past
     			created = tableAlreadyExists(e);
+    		
     			if (!created){
     				throw e;//re-throw the exception so it will be caught in the
     				//external try..catch and recorded as error in the log
@@ -311,67 +278,21 @@ ServletContext cntx = event.getServletContext();
     	}
     }
 
-	/**
-     * @see ServletContextAttributeListener#attributeAdded(ServletContextAttributeEvent)
-     */
-    public void attributeAdded(ServletContextAttributeEvent arg0)  { 
-         // TODO Auto-generated method stub
-    }
-
-	/**
-     * @see ServletRequestListener#requestDestroyed(ServletRequestEvent)
-     */
-    public void requestDestroyed(ServletRequestEvent arg0)  { 
-         // TODO Auto-generated method stub
-    }
-
-	/**
-     * @see ServletRequestAttributeListener#attributeRemoved(ServletRequestAttributeEvent)
-     */
-    public void attributeRemoved(ServletRequestAttributeEvent arg0)  { 
-         // TODO Auto-generated method stub
-    }
-
-	/**
-     * @see HttpSessionBindingListener#valueBound(HttpSessionBindingEvent)
-     */
-    public void valueBound(HttpSessionBindingEvent arg0)  { 
-         // TODO Auto-generated method stub
-    }
-
-	/**
-     * @see ServletRequestListener#requestInitialized(ServletRequestEvent)
-     */
-    public void requestInitialized(ServletRequestEvent arg0)  { 
-         // TODO Auto-generated method stub
-    }
-
-	/**
-     * @see HttpSessionListener#sessionDestroyed(HttpSessionEvent)
-     */
-    public void sessionDestroyed(HttpSessionEvent arg0)  { 
-         // TODO Auto-generated method stub
-    }
-
-	/**
-     * @see HttpSessionActivationListener#sessionDidActivate(HttpSessionEvent)
-     */
-    public void sessionDidActivate(HttpSessionEvent arg0)  { 
-         // TODO Auto-generated method stub
-    }
+	
 
 	/**
      * @see ServletContextListener#contextDestroyed(ServletContextEvent)
      */
     public void contextDestroyed(ServletContextEvent event)  { 
     	ServletContext cntx = event.getServletContext();
-   	 
+   	 	System.out.println("I am destroyer of worlds!!!s");
         //shut down database
    	 try {
     		//obtain CustomerDB data source from Tomcat's context and shutdown
     		Context context = new InitialContext();
-    		BasicDataSource ds = (BasicDataSource)context.lookup("java:comp/env/jdbc/projDatasourceOpen");
-   // 				cntx.getInitParameter(AppConstants.DB_NAME) + AppConstants.SHUTDOWN);
+    		System.out.println(cntx.getInitParameter(AppConstants.DB_DATASOURCE));
+    		BasicDataSource ds = (BasicDataSource)context.lookup(
+     				cntx.getInitParameter(AppConstants.DB_DATASOURCE) + AppConstants.SHUTDOWN);
     		ds.getConnection();
     		ds = null;
 		} catch (SQLException | NamingException e) {
@@ -521,4 +442,76 @@ private Collection<Subscription> loadSubscriptions(InputStream is) throws IOExce
 		return subscriptions;
 
 	}
+
+@Override
+public void attributeAdded(ServletRequestAttributeEvent arg0) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void attributeRemoved(ServletRequestAttributeEvent arg0) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void requestDestroyed(ServletRequestEvent arg0) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void requestInitialized(ServletRequestEvent arg0) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void valueBound(HttpSessionBindingEvent arg0) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void sessionDidActivate(HttpSessionEvent arg0) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void sessionWillPassivate(HttpSessionEvent arg0) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void attributeReplaced(HttpSessionBindingEvent arg0) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void sessionCreated(HttpSessionEvent arg0) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void sessionDestroyed(HttpSessionEvent arg0) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void attributeAdded(ServletContextAttributeEvent arg0) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void attributeRemoved(ServletContextAttributeEvent arg0) {
+	// TODO Auto-generated method stub
+	
+}
 }

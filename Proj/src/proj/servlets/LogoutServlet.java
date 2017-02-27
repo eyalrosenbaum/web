@@ -73,7 +73,7 @@ public class LogoutServlet extends HttpServlet {
 		JsonParser parser = new JsonParser();
 		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
 		
-		String usernickname = jsonObject.get("userNickname").toString();
+		String usernickname = jsonObject.get("userName").toString();
 		Timestamp date = new Timestamp(System.currentTimeMillis());
 		String channel = jsonObject.get("lastActiveChannel").toString();
 		
@@ -95,13 +95,16 @@ public class LogoutServlet extends HttpServlet {
 		//removing user from active users in channels hashmap
 		ArrayList<User> UserList = AppVariables.activeUsersByChannel.get(channel);
 		Iterator itr;
+		if (UserList!=null){
 		itr = UserList.iterator();
 		while(itr.hasNext()){
 			User user = (User)itr.next();
 			if (user.getUserNickname().equals(usernickname))
 				itr.remove();
 		}
+		
 		AppVariables.activeUsersByChannel.put(channel, UserList);
+		}
 	try {
 		conn.close();
 	} catch (SQLException e) {

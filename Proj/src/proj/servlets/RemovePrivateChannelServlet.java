@@ -85,8 +85,26 @@ public class RemovePrivateChannelServlet extends HttpServlet {
 			stmt.setString(1,participanta);
 			stmt.setString(2,participantb);
 			ResultSet rs = stmt.executeQuery();
-			if (rs.next())
+			if (rs.next()){
 				theChannel = new PrivateChannel(proj.models.Type.PRIVATE, rs.getString(1),rs.getString(4),rs.getTimestamp(5));
+				ArrayList<String> participants = new ArrayList<String>();
+				if (user.equals(participanta)){
+					participants.add(user);
+					participants.add(participantb);
+				}
+				else{
+					participants.add(user);
+					participants.add(participanta);				
+				}
+				theChannel.setParticipants(participants);
+			}
+				stmt.close();
+		} catch (SQLException e) {
+			getServletContext().log("Error while deleting channel", e);
+    		response.sendError(500);//internal server error
+		}
+	
+			try {
 			stmt = conn.prepareStatement(AppConstants.DELETE_PRIVATE_CHANNEL_BY_NICKNAME);
 			//for the user who wants to remove the channel his nickname will be first
 			if (participanta.equals(user)){
@@ -120,6 +138,15 @@ public class RemovePrivateChannelServlet extends HttpServlet {
 				userlist.remove(userToDelete);
 		}
 		AppVariables.usersByChannel.put(theChannel.getChannelName(), userlist);
+		userlist = AppVariables.activeUsersByChannel.get(theChannel.getChannelName());
+		 itr = userlist.iterator();
+		 userToDelete = null;
+		while(itr.hasNext()){
+			userToDelete = (User) itr.next();
+			if (userToDelete.getUserNickname().equals(user))
+				userlist.remove(userToDelete);
+		}
+		AppVariables.activeUsersByChannel.put(theChannel.getChannelName(), userlist);
 	}
 	else
 		writer.println("fail");

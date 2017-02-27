@@ -10,7 +10,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -76,7 +78,13 @@ public class GetNextTenThreadsDownServlet extends HttpServlet {
 		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
 
 		String channelName = jsonObject.get("name").toString();
-		Timestamp date = Timestamp.valueOf(jsonObject.get("date").toString());
+		long s = Long.parseLong(jsonObject.get("date").toString());
+		Date dater = new Date(s);
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(dater);
+		cal.set(Calendar.MILLISECOND, 0);
+		
+		Timestamp date = new Timestamp(cal.getTimeInMillis());
 		String username = jsonObject.get("username").toString();
 		Timestamp dateSubscribed = null;
 		//finding messages in database according to channel name

@@ -9,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -73,7 +75,13 @@ public class GetNextThreadUpServlet extends HttpServlet {
 		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
 
 		String channelName = jsonObject.get("name").toString();
-		Timestamp date = Timestamp.valueOf(jsonObject.get("date").toString());
+		long s = Long.parseLong(jsonObject.get("date").toString());
+		Date dater = new Date(s);
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(dater);
+		cal.set(Calendar.MILLISECOND, 0);
+		
+		Timestamp date = new Timestamp(cal.getTimeInMillis());
 		String username = jsonObject.get("username").toString();
 		Timestamp dateSubscribed = null;
 		Subscription sub = null;
@@ -91,8 +99,10 @@ public class GetNextThreadUpServlet extends HttpServlet {
 				sub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),proj.models.Type.PUBLIC);
 				else
 					sub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),proj.models.Type.PRIVATE);
+					sub.setDate(rs.getTimestamp(5));
+					dateSubscribed = sub.getDate();
 			}
-			dateSubscribed = sub.getDate();
+			
 			rs.close();
 			stmt.close();
 			conn.close();
@@ -101,10 +111,12 @@ public class GetNextThreadUpServlet extends HttpServlet {
 			response.sendError(500);//internal server error
 		}
 		try {
-			if((date.after(dateSubscribed))||(date.equals(dateSubscribed))){
+			/*if the first message's date is not after the date the user subscribed to channel, user can't see the threads*/
+			if(date.after(dateSubscribed)){
 			stmt = conn.prepareStatement(AppConstants.SELECT_THREADS_BY_CHANNEL_AND_DATE_DESC);
 			stmt.setString(1, channelName);
-			stmt.setTimestamp(2, date);
+			stmt.setTimestamp(2, dateSubscribed);
+			stmt.setTimestamp(3, date);
 			stmt.setMaxRows(1);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -134,7 +146,7 @@ public class GetNextThreadUpServlet extends HttpServlet {
 				getServletContext().log("Error while querying for threads creators", e);
 				response.sendError(500);//internal server error
 			}
-		
+		//checking number of replies to thread
 		try {
 				stmt = conn.prepareStatement(AppConstants.SELECT_MESSAGES_BY_REPLYTO_STMT);
 				stmt.setInt(1, channelThread.getId());
@@ -150,10 +162,10 @@ public class GetNextThreadUpServlet extends HttpServlet {
 				response.sendError(500);//internal server error
 			}
 		//convert from subscriptions collection to json
-		String channelThreadsJsonResult = gson.toJson(channelThread, Message.class);
+		String channelThreadJsonResult = gson.toJson(channelThread, Message.class);
 
 		PrintWriter writer = response.getWriter();
-		writer.println(channelThreadsJsonResult);
+		writer.println(channelThreadJsonResult);
 		writer.close();
 	}
 

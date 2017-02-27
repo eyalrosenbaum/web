@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -25,13 +26,14 @@ import com.google.gson.JsonParser;
 import porj.helpers.AppConstants;
 import porj.helpers.AppVariables;
 import proj.models.Message;
+import proj.models.Subscription;
 import proj.models.User;
 
 
 /**
  * Servlet implementation class GetThreadsServlet
  */
-@WebServlet("/GetThreadsServlet")
+@WebServlet("/GetThreadsServlet/channelName/*")
 public class GetThreadsServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -55,17 +57,6 @@ public class GetThreadsServlet extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		//reading channel details from the request
-		BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
-		StringBuilder jsonDetails =new StringBuilder();
-		String line;
-		while ((line = br.readLine()) !=null){
-			jsonDetails.append(line);
-		}
-
-		JsonParser parser = new JsonParser();
-		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
 		
 		String channelName = null;
 		String uri = request.getRequestURI();
@@ -81,16 +72,14 @@ public class GetThreadsServlet extends HttpServlet {
 		PreparedStatement stmt;
 		Collection<Message> channelThreads = new ArrayList<Message>();
 		//updating that user has started participating in channel
-		ArrayList<User> users = AppVariables.activeUsersByChannel.get(channelName);
-		if (users == null)
-			users = new ArrayList<User>();
+		User user = null;
 		try {
 				stmt = conn.prepareStatement(AppConstants.SELECT_USER_BY_USERNAME_STMT);
 				stmt.setString(1,username);
 				ResultSet rs = stmt.executeQuery();
 				while (rs.next()){
-					users.add(new User(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4)
-							,rs.getString(5),rs.getBoolean(6),rs.getTimestamp(7)));
+					user = new User(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4)
+							,rs.getString(5),rs.getBoolean(6),rs.getTimestamp(7));
 				}
 				rs.close();
 				stmt.close();
@@ -99,15 +88,26 @@ public class GetThreadsServlet extends HttpServlet {
 				getServletContext().log("Error while querying for threads creators", e);
 				response.sendError(500);//internal server error
 			}
-		AppVariables.activeUsersByChannel.put(channelName, users);
+		/*entering user to channels active users arraylist*/
+		ArrayList<User> channelUsers = AppVariables.activeUsersByChannel.get(channelName);
+		if (channelUsers == null)
+			channelUsers = new ArrayList<User>();
+		if (user!=null)
+			channelUsers.add(user);
+		AppVariables.activeUsersByChannel.put(channelName, channelUsers);
+		
+		/*getting subscription date*/
+		Subscription sub = null;
 		try {
-			stmt = conn.prepareStatement(AppConstants.SELECT_THREADS_BY_CHANNEL);
-			stmt.setString(1, channelName);
-			stmt.setMaxRows(10);
+			stmt = conn.prepareStatement(AppConstants.SELECT_SUBSCRIPTIONS_BY_USERNAME_AND_CHANNEL);
+			stmt.setString(1, username);
+			stmt.setString(2, channelName);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
-				channelThreads.add(new Message(rs.getInt(1), rs.getString(2), rs.getString(3),rs.getString(4), rs.getBoolean(5), rs.getInt(6), rs.getInt(7),
-						rs.getTimestamp(8), rs.getTimestamp(9)));
+				if (rs.getString(4).equals("private"))
+					sub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),proj.models.Type.PRIVATE);
+				else sub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),proj.models.Type.PUBLIC);
+				sub.setDate(rs.getTimestamp(5));
 			}
 			rs.close();
 			stmt.close();
@@ -116,38 +116,58 @@ public class GetThreadsServlet extends HttpServlet {
 			getServletContext().log("Error while querying for messages", e);
 			response.sendError(500);//internal server error
 		}
-		//adding photourl to message
-		try {
-			for (Message thread: channelThreads){
-				stmt = conn.prepareStatement(AppConstants.SELECT_USER_BY_NICKNAME_STMT);
-				stmt.setString(1, thread.getAuthor());
-				ResultSet rs = stmt.executeQuery();
-				while (rs.next()){
-					thread.setAuthorPhotoUrl(rs.getString(5));
-				}
-				rs.close();
-				stmt.close();
-				conn.close();
-			}} catch (SQLException e) {
-				getServletContext().log("Error while querying for threads creators", e);
-				response.sendError(500);//internal server error
-			}
 		
-		try {
-			for (Message thread: channelThreads){
-				stmt = conn.prepareStatement(AppConstants.SELECT_MESSAGES_BY_REPLYTO_STMT);
-				stmt.setInt(1, thread.getId());
+		if ((user!=null)&&(sub!=null)){
+			try {
+				stmt = conn.prepareStatement(AppConstants.SELECT_THREADS_BY_CHANNEL);
+				stmt.setString(1, channelName);
+				stmt.setTimestamp(2, sub.getDate());
+				stmt.setMaxRows(10);
 				ResultSet rs = stmt.executeQuery();
 				while (rs.next()){
-					thread.addtoumberOfReplies();
+					channelThreads.add(new Message(rs.getInt(1), rs.getString(2), rs.getString(3),rs.getString(4), rs.getBoolean(5), rs.getInt(6), rs.getInt(7),
+							rs.getTimestamp(8), rs.getTimestamp(9)));
 				}
 				rs.close();
 				stmt.close();
 				conn.close();
-			}} catch (SQLException e) {
-				getServletContext().log("Error while querying for threads creators", e);
+			} catch (SQLException e) {
+				getServletContext().log("Error while querying for messages", e);
 				response.sendError(500);//internal server error
 			}
+			//adding photourl to message
+			try {
+				for (Message thread: channelThreads){
+					stmt = conn.prepareStatement(AppConstants.SELECT_USER_BY_NICKNAME_STMT);
+					stmt.setString(1, thread.getAuthor());
+					ResultSet rs = stmt.executeQuery();
+					while (rs.next()){
+						thread.setAuthorPhotoUrl(rs.getString(5));
+					}
+					rs.close();
+					stmt.close();
+					conn.close();
+				}} catch (SQLException e) {
+					getServletContext().log("Error while querying for threads creators", e);
+					response.sendError(500);//internal server error
+				}
+			
+			try {
+				for (Message thread: channelThreads){
+					stmt = conn.prepareStatement(AppConstants.SELECT_MESSAGES_BY_REPLYTO_STMT);
+					stmt.setInt(1, thread.getId());
+					ResultSet rs = stmt.executeQuery();
+					while (rs.next()){
+						thread.addtoumberOfReplies();
+					}
+					rs.close();
+					stmt.close();
+					conn.close();
+				}} catch (SQLException e) {
+					getServletContext().log("Error while querying for thread replies", e);
+					response.sendError(500);//internal server error
+			}
+		}
 		//convert from subscriptions collection to json
 		String channelThreadsJsonResult = gson.toJson(channelThreads, AppConstants.MESSAGE_COLLECTION);
 

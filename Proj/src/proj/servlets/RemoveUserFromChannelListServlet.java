@@ -5,16 +5,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -22,19 +23,19 @@ import com.google.gson.JsonParser;
 
 import porj.helpers.AppConstants;
 import porj.helpers.AppVariables;
-
+import proj.models.User;
 
 /**
- * Servlet implementation class GetMentionsServlet
+ * Servlet implementation class RemoveUserFromChannelListServlet
  */
-@WebServlet("/GetMentionsServlet")
-public class GetMentionsServlet extends HttpServlet {
+@WebServlet("/RemoveUserFromChannelListServlet")
+public class RemoveUserFromChannelListServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public GetMentionsServlet() {
+    public RemoveUserFromChannelListServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -51,15 +52,9 @@ public class GetMentionsServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		Gson gson = new Gson();
-		Connection conn = null;
-		try {
-			conn = AppVariables.db.getConnection();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		
+		HttpSession session = request.getSession();
+		String nickname = session.getAttribute(AppConstants.USERNICKNAME).toString();
 		//reading channel details from the request
 		BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
 		StringBuilder jsonDetails =new StringBuilder();
@@ -71,35 +66,17 @@ public class GetMentionsServlet extends HttpServlet {
 		JsonParser parser = new JsonParser();
 		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
 
-		String userNickname = jsonObject.get("nickname").toString();
-		Timestamp previousLog = Timestamp.valueOf(jsonObject.get("previousLog").toString());
-		String channelName = jsonObject.get("channel").toString();
-
-		//finding number of new notifications in database according to channel name and previouslog
-		PreparedStatement stmt;
-		int mentions = 0;
-		String prefix = "%@"+userNickname+"%";
-		try {
-			stmt = conn.prepareStatement(AppConstants.SELECT_MESSAGES_BY_DATE_AND_NICKNAME_AND_CHANNEL);
-			stmt.setString(1, channelName);
-			stmt.setTimestamp(2,previousLog);
-			stmt.setString(3, prefix);
-			ResultSet rs = stmt.executeQuery();
-			while (rs.next()){
-				mentions++;
-			}
-			rs.close();
-			stmt.close();
-			conn.close();
-		} catch (SQLException e) {
-			getServletContext().log("Error while querying for mentions", e);
-			response.sendError(500);//internal server error
+		String channelName = jsonObject.get("name").toString();
+		ArrayList<User> list = AppVariables.activeUsersByChannel.get(channelName);
+		Iterator itr = list.iterator();
+		while (itr.hasNext()){
+			User user = (User) itr.next();
+			if (user.getUserNickname().equals(nickname))
+				list.remove(user);
 		}
-		//convert from int  to json
-		String mentionsJsonResult = gson.toJson(mentions, Integer.class);
-
+		AppVariables.activeUsersByChannel.put(channelName, list);
 		PrintWriter writer = response.getWriter();
-		writer.println(mentionsJsonResult);
+		writer.println("user deleted from channels active list");
 		writer.close();
 	}
 

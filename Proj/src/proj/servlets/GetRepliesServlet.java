@@ -29,7 +29,7 @@ import proj.models.Message;
 /**
  * Servlet implementation class GetRepliesServlet
  */
-@WebServlet("/GetRepliesServlet")
+@WebServlet("/GetRepliesServlet/threadID/*")
 public class GetRepliesServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -54,17 +54,7 @@ public class GetRepliesServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 
-		//reading channel details from the request
-		BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
-		StringBuilder jsonDetails =new StringBuilder();
-		String line;
-		while ((line = br.readLine()) !=null){
-			jsonDetails.append(line);
-		}
-
-		JsonParser parser = new JsonParser();
-		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
-
+		
 		Integer threadid = null;
 		String uri = request.getRequestURI();
 		if (uri.indexOf(AppConstants.THREADID)!=-1)
@@ -104,7 +94,7 @@ public class GetRepliesServlet extends HttpServlet {
 				getServletContext().log("Error while querying for replies creators", e);
 				response.sendError(500);//internal server error
 			}
-		
+		//inserting number of replies to messge
 		try {
 			for (Message thread: replies){
 				stmt = conn.prepareStatement(AppConstants.SELECT_MESSAGES_BY_REPLYTO_STMT);

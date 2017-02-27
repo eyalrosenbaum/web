@@ -76,14 +76,15 @@ public class SignupServlet extends HttpServlet {
     			jsonDetails.append(line);
     		}
     		user = gson.fromJson(jsonDetails.toString(),User.class);
-    		
+    		System.out.println(user);
+    		System.out.println(user.getUserName());
+    		System.out.println(user.getUserNickname());
     		boolean badUserNameIndication = false;
     		boolean badNicknameIndication = false;
     		
     		int userID = 0;
     		
-    		if ((user.getUserName() !=null) && (user.getPassword() != null) && (user.getUserNickname() != null) &&
-    				(user.getUserDescription() != null) ){
+    		if ((user.getUserName() !=null) && (user.getPassword() != null) && (user.getUserNickname() != null) ){
     			PreparedStatement stmt;
     			try {
     				//first checking that there is no other user with the same username
@@ -93,6 +94,10 @@ public class SignupServlet extends HttpServlet {
     				ResultSet rs = stmt.executeQuery();
     				if (rs.next()){
     					badUserNameIndication = true;
+    					User user1 = new User(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5));
+    					System.out.println(user1);
+    					System.out.println(user1.getUserName());
+    					System.out.println(user1.getUserNickname());
     				}
     				rs.close();
     				stmt.close();
@@ -103,6 +108,10 @@ public class SignupServlet extends HttpServlet {
     				rs = stmt.executeQuery();
     				if (rs.next()){
     					badNicknameIndication = true;
+    					User user1 = new User(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5));
+    					System.out.println(user1);
+    					System.out.println(user1.getUserName());
+    					System.out.println(user1.getUserNickname());
     				}
     				rs.close();
     				stmt.close();
@@ -133,26 +142,7 @@ public class SignupServlet extends HttpServlet {
         				getServletContext().log("Error while inserting new user", e);
         	    		response.sendError(500);//internal server error
         			}
-    				//every user is registered to the general channel
-    				Subscription firstSubscription = new Subscription(user.getUserName(),AppConstants.GENERAL_CHANNEL,proj.models.Type.PUBLIC);
-	    			//updating our list of users for general channel
-    				ArrayList<User> currentList = AppVariables.usersByChannel.get(firstSubscription.getChannel());
-    				if (currentList == null)
-    					currentList = new ArrayList<User>();
-    				currentList.add(user);
-	    			AppVariables.usersByChannel.put(firstSubscription.getChannel(), currentList);
-    				//entering the general channel subscription for this user
-	    			try {
-		    			stmt = conn.prepareStatement(AppConstants.INSERT_SUBSCRIPTIONS);
-		    			stmt.setString(1, firstSubscription.getUsername());
-		    			stmt.setString(2, firstSubscription.getChannel());
-		    			stmt.executeUpdate();
-		    			conn.commit();
-		    			stmt.close();
-	    				} catch (SQLException e) {
-	        				getServletContext().log("Error while inserting new subscription", e);
-	        	    		response.sendError(500);//internal server error
-	        			}
+
 	    			//setting session attribute - username for future actions
 	    			session.setAttribute(AppConstants.USERNAME, user.getUserName());
 	    				
@@ -166,7 +156,7 @@ public class SignupServlet extends HttpServlet {
         	//convert from user to json
     		if (badUserNameIndication)
     			user = new User("Error username taken");
-    		else
+    		else if(badNicknameIndication)
     			user = new User("Error nickname taken");
     		userJsonResult = gson.toJson(user);
 			writer.println(userJsonResult);

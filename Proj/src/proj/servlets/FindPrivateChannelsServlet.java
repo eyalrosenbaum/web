@@ -67,9 +67,6 @@ public class FindPrivateChannelsServlet extends HttpServlet {
 			jsonDetails.append(line);
 		}
 		
-		JsonParser parser = new JsonParser();
-		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
-		
 		
 		//finding subscriptions in database according to username
 		PreparedStatement stmt;
@@ -101,7 +98,7 @@ public class FindPrivateChannelsServlet extends HttpServlet {
 			}
 			
 		//convert from subscriptions collection to json
-    	String privatChannelsJsonResult = gson.toJson(result, AppConstants.SUBSCRIPTION_COLLECTION);
+    	String privatChannelsJsonResult = gson.toJson(result, AppConstants.PRIVATE_CHANNELS_COLLECTION);
 
     	PrintWriter writer = response.getWriter();
     	writer.println(privatChannelsJsonResult);

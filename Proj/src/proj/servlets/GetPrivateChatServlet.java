@@ -70,7 +70,7 @@ public class GetPrivateChatServlet extends HttpServlet {
 
 		JsonParser parser = new JsonParser();
 		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
-
+		//usera initiated the request
 		String nicknameA = jsonObject.get("usera").toString();
 		String nicknameB = jsonObject.get("userb").toString();
 		
@@ -92,25 +92,27 @@ public class GetPrivateChatServlet extends HttpServlet {
 					getServletContext().log("Error while querying for messages", e);
 					response.sendError(500);//internal server error
 				}
-				if (privateChat == null){
-					try {
-						stmt = conn.prepareStatement(AppConstants.SELECT_PRIVATE_CHANNEL_BY_NICKNAME);
-						stmt.setString(1, nicknameB);
-						stmt.setString(2, nicknameA);
-						ResultSet rs = stmt.executeQuery();
-						while (rs.next()){
-							privateChat = new PrivateChannel(proj.models.Type.PRIVATE,rs.getString(1), rs.getString(4), rs.getTimestamp(5));
-						}
-						rs.close();
-						stmt.close();
-						conn.close();
-					} catch (SQLException e) {
-						getServletContext().log("Error while querying for messages", e);
-						response.sendError(500);//internal server error
-					}
-				}
+//				if (privateChat == null){
+//					try {
+//						stmt = conn.prepareStatement(AppConstants.SELECT_PRIVATE_CHANNEL_BY_NICKNAME);
+//						stmt.setString(1, nicknameB);
+//						stmt.setString(2, nicknameA);
+//						ResultSet rs = stmt.executeQuery();
+//						while (rs.next()){
+//							privateChat = new PrivateChannel(proj.models.Type.PRIVATE,rs.getString(1), rs.getString(4), rs.getTimestamp(5));
+//						}
+//						rs.close();
+//						stmt.close();
+//						conn.close();
+//					} catch (SQLException e) {
+//						getServletContext().log("Error while querying for messages", e);
+//						response.sendError(500);//internal server error
+//					}
+//				}
 				//convert from channel to json
-				String privateChatJsonResult = gson.toJson(privateChat, PrivateChannel.class);
+				String privateChatJsonResult = null;
+				if (privateChat!=null)
+				privateChatJsonResult = gson.toJson(privateChat, PrivateChannel.class);
 
 				PrintWriter writer = response.getWriter();
 				writer.println(privateChatJsonResult);

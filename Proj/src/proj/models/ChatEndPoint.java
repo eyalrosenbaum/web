@@ -24,7 +24,7 @@ import porj.helpers.AppVariables;
 
 
 @ServerEndpoint(
-		value = "/JamSession/{nickname}",
+		value = "/chat",
 		decoders = MsgDecoder.class,
 		encoders = MsgEncoder.class)
 public class ChatEndPoint{
@@ -42,6 +42,7 @@ public class ChatEndPoint{
     @OnOpen
     public void login(Session session, @PathParam("nickname") String nickname) throws IOException, SQLException{
     	//try {
+    	System.out.println("websocking login called");
     		if (session.isOpen()) {
     			//add new user to managed chat sessions
     	    	chatUsers.put(session,nickname);
@@ -118,6 +119,7 @@ public class ChatEndPoint{
     @OnClose
     public void logOut(Session session) throws IOException, SQLException{
     //	try {
+    	System.out.println("websocking logout called");
     		String user = chatUsers.remove(session);//fake user just for removal
     		Connection conn = AppVariables.db.getConnection();
 			PreparedStatement stmt;

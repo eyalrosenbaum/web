@@ -751,7 +751,7 @@
 		var lastY = win.scrollTop();
 		win.on('scroll',function(){
 			var currY = win.scrollTop();
-			y = (currY > lastY)? 'down' : ((currY===lastY)? 'none':'up');
+			var y = ((currY > lastY)? 'down' : ((currY===lastY)? 'none':'up'));
 			if (y=='down')
 				getNextThreadDown($scope.ActiveChannel);
 			else if (y=='up')

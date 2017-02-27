@@ -1,0 +1,17 @@
+
+<div class="messageBody">
+  <div class="photoName">
+    <img class="messagePhotos" ng-src="{{thread.authorPhotoUrl}}">
+    <span class="caption">{{thread.author}}</span>
+  </div>
+  <div class="messageContent">
+    <p><span class="glyphicon glyphicon-music" aria-hidden="true"></span> {{thread.content}}</p>
+    <p><span class="numberOfReplies" ng-click="thread.showReplies = !thread.showReplies">{{thread.numberOfReplies}}
+      <span ng-click="addReply(thread.id,thread.author)"> add reply </span></p>
+    <div class="pannel-footer">post date: {{thread.date | date: 'HH:MM:SS dd/mm/yy'}} last-update: {{thread.lastUpdate}}</div>
+  </div>
+</div>
+<ul ng-if="(thread.numberOfReplies>0)" ng-show="thread.showReplies">
+  <li ng-repeat="reply in getReplies(thread.id)" ng-include="'treeView.html'">
+  </li>
+</ul>

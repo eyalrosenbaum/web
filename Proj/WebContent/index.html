@@ -127,7 +127,6 @@
             <!--      <li class="tab"><a href="#login">Log In</a></li>--->
             <li id="signup-tab" ng-class="{ active: isSelected('signup') }"><a href ng-click="selectTab('signup')">Sign Up</a></li>
             <li id="login-tab" ng-class="{ active: isSelected('login') }"><a href ng-click="selectTab('login')" >Log In</a></li>
-            <p>{{tab}}</p>
           </ul>
 
           <!--signup screen-->
@@ -137,23 +136,38 @@
                 <div>
                   <!--username enter--->
                   <div class="form-group col-lg-6">
+                    <p id="top">
+                      <label for="username" class="form-Label">Username:</label>
                     <input id="username" type="text" ng-model="userName" class="form-control" name="username" placeholder="username*" maxlength=10 required>
+                  </p>
                   </div>
                   <!--password enter--->
                   <div class="form-group col-lg-6">
+                    <p>
+                      <label for="password" class="form-Label">password:</label>
                     <input id="password" type="password" ng-model="password" class="form-control" name="password" placeholder="password*" maxlength=8 required>
+                  </p>
                   </div>
                   <!--user nickname enter--->
                   <div class="form-group col-lg-6">
+                    <p>
+                      <label for="nickname" class="form-Label">nickname:</label>
                     <input id="nickname" type="text" ng-model="userNickname" class="form-control" name="nickname" placeholder="nickname*" maxlength=20 required>
+                  </p>
                   </div>
                   <!--user short description enter--->
                   <div class="form-group col-lg-6">
+                    <p>
+                      <label for="description" class="form-Label">description:</label>
                     <input id="description" type="text" ng-model="userDescription" class="form-control" name="description" placeholder="description*" maxlength=50 >
+                  </p>
                   </div>
                   <!--user link to a photo enter--->
                   <div class="form-group col-lg-12">
+                    <p id="down">
+                      <label for="photo" class="form-Label">photo:</label>
                     <input id="photo-url" type="text" ng-model="userPhotoURL" class="form-control" name="photo-url" placeholder="photo-url*"  >
+                  </p>
                   </div>
                 </div>
                 <br><button id="sign-in-btn" type="submit" class="btn btn-default" ng-click="userSignUp()">Sign up</button>
@@ -167,7 +181,7 @@
                 <div>
                   <!--username enter--->
                   <div class="form-group col-lg-6">
-                    <label>username:</label><input id="username" type="text" ng-model="userName" class="form-control" name="username" placeholder="username*"  required>
+                    <input id="username" type="text" ng-model="userName" class="form-control" name="username" placeholder="username*"  required>
                   </div>
                   <!--password enter--->
                   <div class="form-group col-lg-6">

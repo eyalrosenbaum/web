@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
+  <display-name>Proj</display-name>
+  <context-param>
+    <param-name>projDatasource</param-name>
+    <param-value>java:comp/env/jdbc/ProjDatasource</param-value>
+  </context-param>
+  <context-param>
+    <param-name>projDB</param-name>
+    <param-value>java:comp/env/jdbc/ProjDB</param-value>
+  </context-param>
+  <context-param>
+    <param-name>DatabaseName</param-name>
+    <param-value>projDB</param-value>
+  </context-param>
+  <listener>
+    <description>Database Creation</description>
+    <listener-class>proj.listeners.Creation</listener-class>
+  </listener>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
+  <resource-ref>
+    <description>Proj Database open</description>
+    <res-ref-name>jdbc/projDatasourceOpen</res-ref-name>
+    <res-type>javax.sql.DataSource</res-type>
+    <res-auth>Container</res-auth>
+  </resource-ref>
+  <resource-ref>
+    <description>Proj Database shutdown</description>
+    <res-ref-name>jdbc/projDatasourceShutdown</res-ref-name>
+    <res-type>javax.sql.DataSource</res-type>
+    <res-auth>Container</res-auth>
+  </resource-ref>
+</web-app>

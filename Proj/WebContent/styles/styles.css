@@ -1,0 +1,244 @@
+.form-Label{
+  color: coral;
+}
+.top-row{
+  float: left;
+}
+
+.signup-tab{
+margin-left: 2%;
+margin-bottom: 2%;
+}
+
+
+#sign-in-btn{
+  margin-top: -20px;
+  margin-left: 41%;
+}
+
+#login-btn{
+  margin-left: 41%;
+}
+
+#ErrorMessage{
+    color: red;
+}
+
+#loadPic{
+    position: fixed;
+    left: 60%;
+    top: 45%;
+}
+
+#down{
+  margin: -6px 0 10px;
+}
+#header-nav{
+    background-color: #000000	;
+    color: white;
+    border: 0px;
+}
+
+#field-space{
+  background-color: black;
+  align-items: center;
+  margin-top: 0%;
+  background-color: currentColor;
+  padding-top: 2%;
+  padding-bottom: 2%;
+  width: 50%;
+  height:500px;
+}
+
+#top{
+  margin: 16px 0 10px;
+}
+#public-channels-header,#private-channels-header{
+  color: coral;
+  font-family: fantasy;
+}
+
+
+
+#navTab{
+  margin-bottom: 1%;
+  margin-left: 2%;
+}
+
+#logo-img{
+  width: 130px;
+  float: left;
+}
+body{
+
+  background-color: #e96;
+}
+.main-page-header{
+  font-family: impact;
+  margin-left: 5%;
+  color:coral;
+}
+
+#userMessage{
+  position: absolute;
+  left: 210px;
+  bottom: 35px;
+}
+
+.messagePhotos{
+  float: left;
+}
+
+.photoName{
+  vertical-align: top;
+  display: inline-block;
+  text-align: center;
+  width: 50px;
+}
+
+.messagePhotos{
+  width: 50px;
+  height: 50px;
+  background-color: grey;
+}
+
+.caption{
+  display: block;
+}
+
+.client-channel-list-container{
+  background-color: grey;
+  background-image:  url("../Guitar-on-Fire.jpg");
+  z-index: 100;
+  width: 150px;
+  height: 100%;
+  position: fixed;
+  margin-top: -22px;
+  margin-left: -15px;
+}
+input.textarea{
+  position:fixed;
+  bottom:0px;
+  left: 151px;
+  right: 0px;
+  width: 100%;
+  height: 50px;
+  z-index:  99;
+  background: orangered;
+  border: none;
+  outline: none;
+  padding-left: 55px;
+  padding-right: 55px;
+  color: white;
+  font-weight: 400;
+}
+.emojis {
+  position: fixed;
+  display: block;
+  bottom: 8px;
+  left: 160px;
+  width: 34px;
+  height: 34px;
+  background-image: url(http://i.imgur.com/5WUpcPZ.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  z-index: 100;
+  cursor: pointer;
+}
+.emojis:active{
+  opacity: 0.9;
+}
+.messageBody{
+  float: left;
+  width: auto;
+  left: 155px;
+  max-width: 80%;
+  position: relative;
+  clear: both;
+  background: white;
+  padding: 0.5em 1em;
+  background: linear-gradient(40deg, rgba(255, 255, 255, 0.2) 00%, rgba(255,255,255,0.3) 100%);
+  border-radius: 3px;
+  box-shadow: 0 5px 30px rgba(255,255,255,0.1);
+  margin-bottom: -10px;
+  color: black;
+  word-wrap: break-word;
+  font-size: 1em;
+  margin-top: 30px;
+
+
+}
+
+.messageBox{
+  position: relative;
+  background: white;
+  display: block;
+  width:50%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+.thumbnail{
+  display: inline-block;
+  background: #bfbfbf;
+  width: 50px;
+  color:white;
+  line-height: 50px;
+  text-align: center;
+  text-decoration: none;
+
+}
+.content{
+  display: inline-block;
+  margin-left: 150px;
+  vertical-align: top;
+  line-height: 1;
+}
+#message-form{
+  position:relative;
+  width: 90%;
+}
+#message-input{
+    position: absolute;
+    top: -50px;
+    left: 0;
+    overflow: auto;
+    margin: 0;
+    margin-left: 153px;
+    margin-right: 150px;
+    width:700px;
+    min-height: 2.625rem;
+    max-height: 11.25rem;
+    padding-top: .5625rem;
+    padding-right: 1.875rem;
+    padding-bottom: .625rem;
+    padding-left: 3.125rem;
+    border: 2px solid #e0e0e0;
+    border-radius: .375rem;
+    outline: 0;
+    background: #fff;
+    resize: none;
+    box-shadow: none;
+    color: #3d3c40;
+    font-size: 1.4rem;
+    line-height: 1.2rem;
+    user-select: auto;
+    display: inline-block;
+
+}
+
+#footer{
+  position: fixed;
+  left:53px;
+  bottom: 13px;
+  z-index: 100;
+  width:100%;
+}
+
+#sendBtn{
+  position:absolute;
+  /*float: left;*/
+  top:-50px;
+  left:860px;
+  z-index: 100;
+  /*display: inline-block;*/
+}

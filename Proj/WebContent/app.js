@@ -6,6 +6,25 @@
 
 	jamSessionController.$inject = ['$scope','$http','$location'];
 	function jamSessionController($scope,$http,$location) {
+
+		console.log("channels are:");
+		$http.get("http://localhost:8080/Proj/Channels").then(
+		function(response){
+			//console.log(JSON.parse(response.data));
+		});
+
+		$http.get("http://localhost:8080/Proj/Messages").then(
+		function(response){
+			//console.log(JSON.parse(response.data));
+		});
+		$http.get("http://localhost:8080/Proj/Subscriptions").then(
+		function(response){
+		//	console.log(JSON.parse(response.data));
+		});
+		$http.get("http://localhost:8080/Proj/Users").then(
+		function(response){
+			//console.log(JSON.parse(response.data));
+		});
 		/*welcomeScreen is true when we display login or signup panel and false after user is logged into site*/
 		// Save data to sessionStorage;
 		$scope.welcomeScreen=true;
@@ -100,11 +119,9 @@
 					}).then(
 							function(response){
 								console.log("/GetPrivateChatServlet called, response is "+response.data);
-								var data = JSON.stringify(response.data);
-								var json = JSON.parse(data);
-								if (data != null){
+								if (response.data != null){
 									/*entering private channel to channels list and updating  it's mentions and notifications*/
-									$scope.UserPrivateChannels.push(json);
+									$scope.UserPrivateChannels.push(response.data);
 									($scope.UserPrivateChannels[$scope.UserPrivateChannels.length-1]).setAttribute(mentions,0);
 									($scope.UserPrivateChannels[$scope.UserPrivateChannels.length-1]).setAttribute(notifications,1);
 								}
@@ -114,21 +131,21 @@
 				/*for users that are on the channel that contains the new message, the page should refresh according to the thread updated*/
 				if ($scope.ActiveChannel == message.channel){
 					/*getting 10 newest threads to show*/
-					getNewestThreads(ActiveChannel);
+					$scope.getNewestThreads(ActiveChannel);
 				}
 				else{
 					/*for users that are subscribed to the channel that contains the new message but are not there there should be a notification*/
 					var isSubscribed = checkSubscription(message.channel);
 					if (isSubscribed == "public")
-						updateNotificationsPublic(message.channel);
+						$scope.updateNotificationsPublic(message.channel);
 					if (isSubscribed == "private")
-						updateNotificationsPrivate(message.channel);
+						$scope.updateNotificationsPrivate(message.channel);
 					/*if user is subscribed to channel and is mentioned in the new message posted he should get a notification*/
 					if (message.content.includes("@"+$scope.userNickname)){
 						if (isSubscribed == "public")
-							updateMentionsPublic(message.channel);
+							$scope.updateMentionsPublic(message.channel);
 						if (isSubscribed == "private")
-							updateMentionsPrivate(message.channel);
+							$scope.updateMentionsPrivate(message.channel);
 					}
 				}
 			}
@@ -140,19 +157,15 @@
 				url: 'http://localhost:8080/Proj/FindSubscriptionServlet',
 			}).then(
 					function(response){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
-						console.log("FindSubscriptionServlet called, response is "+response.data);
-						for (var x in json){
-							$scope.UserPublicChannels.push(x);
-							console.log("x is "+x);
-						}
+						$scope.UserPublicChannels = response.data;
+
+						console.log("FindSubscriptionServlet called, UserPublicChannelsד is "+$scope.UserPublicChannels);
 
 						for(var i=0;i<$scope.UserPublicChannels.length;i++){
 							($scope.UserPublicChannels[i]).mentions = 0;
 							($scope.UserPublicChannels[i]).notifications = 0;
-							($scope.UserPublicChannels[i]).notifications = updateNotificationsOnLoadPublic($scope.UserPublicChannels[i]);
-							($scope.UserPublicChannels[i]).mentions = updateMentionsOnLoadPublic($scope.UserPublicChannels[i]);
+							($scope.UserPublicChannels[i]).notifications = $scope.updateNotificationsOnLoadPublic($scope.UserPublicChannels[i]);
+							($scope.UserPublicChannels[i]).mentions = $scope.updateMentionsOnLoadPublic($scope.UserPublicChannels[i]);
 							console.log("$scope.UserPublicChannels["+i+"] is "+$scope.UserPublicChannels[i]);
 						}
 
@@ -168,17 +181,13 @@
 			}).then(
 					function(response){
 						console.log("FindPrivateChannelsServlet called, response is "+response.data);
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
-						if (data!=null){
-							for (var x in json){
-								$scope.UserPrivateChannels.push(x);
-							}
+						if (response.data!=null){
+								$scope.UserPrivateChannels = response.data;
 							for(var i=0;i<$scope.UserPublicChannels.length;i++){
 								($scope.UserPrivateChannels[i]).setAttribute(mentions,0);
 								($scope.UserPrivateChannels[i]).setAttribute(notifications,0);
-								($scope.UserPrivateChannels[i]).notifications = updateNotificationsOnLoadPrivate(($scope.UserPrivateChannels[i]));
-								($scope.UserPrivateChannels[i]).mentions = updateMentionsOnLoadPrivate(($scope.UserPrivateChannels[i]));
+								($scope.UserPrivateChannels[i]).notifications = $scope.updateNotificationsOnLoadPrivate(($scope.UserPrivateChannels[i]));
+								($scope.UserPrivateChannels[i]).mentions = $scope.updateMentionsOnLoadPrivate(($scope.UserPrivateChannels[i]));
 								console.log("$scope.UserPrivateChannels["+i+"] is "+$scope.UserPrivateChannels[i]);
 							}
 						}
@@ -197,23 +206,21 @@
 				/*data: */JSON.stringify(userCredentials)
 			/*}*/).then(
 					function(response){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
-						console.log("LoginServlet called, response is "+response.data);
-						console.log("LoginServlet called, json is "+json);
-						if (json != null){
-							$scope.userName=json.userName;
+
+						console.log("LoginServlet called, response is "+response.data.userName);
+						if (response.data != null){
+							$scope.userName=response.data.userName;
 							console.log("userName is "+ $scope.userName);
-							$scope.password=json.password;
+							$scope.password=response.data.password;
 							console.log("password is "+ $scope.password);
-							$scope.userNickname=json.userNickname;
+							$scope.userNickname=response.data.userNickname;
 							console.log("userNickname is "+ $scope.userNickname);
-							$scope.userDescription=json.userDescription;
+							$scope.userDescription=response.data.userDescription;
 							console.log("userDescription is "+ $scope.userDescription);
-							$scope.photoURL=json.photoURL;
+							$scope.photoURL=response.data.photoURL;
 							console.log("photoURL is "+ $scope.photoURL);
-							$scope.islogged = json.islogged;
-							$scope.lastlastlogged = new Date(json.lastlogged)
+							$scope.islogged = response.data.islogged;
+							$scope.lastlastlogged = new Date(response.data.lastlogged)
 							$scope.lastLogged = Date.now()
 							$scope.welcomeScreen=false;
 							$scope.getUserPublicChannels($scope.userNickname);
@@ -240,25 +247,21 @@
 				/*data: */JSON.stringify(newUserDetails)
 		/*	}*/).then(
 					function(response){
-						console.log("SignupServlet called, response is "+JSON.stringify(response.data));
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
-						console.log(data);
-						console.log(json);
-						console.log("username is "+json.userName);
-						if((json.userName == "Error username taken")||(json.userName == "Error nickname taken")){
+						console.log("SignupServlet called, response is "+response.data);
+						console.log("username is "+response.data.userName);
+						if((response.data.userName == "Error username taken")||(response.data.userName == "Error nickname taken")){
 							console.log("there was an error");
 								$scope.ErrorExists = true;
-							$scope.ErrorMsg = json.userName;
+							$scope.ErrorMsg = response.data.userName;
 							}else{
-								$scope.userName = json.userName;
-								$scope.password=json.password;
-								$scope.userNickname=json.userNickname;
-								$scope.userDescription=json.userDescription;
-								$scope.photoURL=json.photoURL;
-								$scope.islogged = json.islogged;
-								$scope.lastLogged =new Date(json.lastLogged)
-								$scope.lastlastlogged = new Date(json.lastLogged)
+								$scope.userName = response.data.userName;
+								$scope.password=response.data.password;
+								$scope.userNickname=response.data.userNickname;
+								$scope.userDescription=response.data.userDescription;
+								$scope.photoURL=response.data.photoURL;
+								$scope.islogged = response.data.islogged;
+								$scope.lastLogged =new Date(response.data.lastLogged)
+								$scope.lastlastlogged = new Date(response.data.lastLogged)
 							$scope.welcomeScreen=false;
 								$scope.getUserPublicChannels($scope.userNickname);
 								$scope.getUserPrivateChannels($scope.userNickname);
@@ -282,12 +285,7 @@
 				data: JSON.stringify(UserDetails)
 			}).then(
 					function(response){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
-						console.log("LogoutServlet called, response is "+response.data);
-						console.log("LogoutServlet called, response is "+json);
-						console.log(json.trim() == "success");
-						if (json.trim() == "success"){
+						if (response.data.trim() == "success"){
 
 							$scope.userName="";
 							console.log("userName is "+$scope.userName);
@@ -306,31 +304,28 @@
 
 
 
-		``  /*function that removes a specific public channel from a user's channels*/
+		  /*function that removes a specific public channel from a user's channels*/
 		$scope.publicChannelRemove = function(channelName){
 			var subscription = {
 					username : $scope.userName,
 					channel : channelName,
 					type : "public"
-			}
+			};
 			$http({
 				method: 'POST',
 				url: 'http://localhost:8080/Proj/UnsubscribeServlet',
-				data: subscription
+				data: JSON.stringify(subscription)
 			}).then(
 					function(response){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
 						console.log("UnsubscribeServlet called, response is "+response.data);
-						if (json == "success"){
+						if (response.data == "success"){
 							/*removing the channel from users channel list on screen*/
 							var index = -2;
-							for (i=0;i<$scope.UserPublicChannels.length;i++)
+							for (var i=0;i<$scope.UserPublicChannels.length;i++)
 								if ($scope.UserPublicChannels[i].channel == subscription.channel)
 									index = i;
 							if (index > -1){
 								$scope.UserPublicChannels.splice(index, 1);
-								sessionStorage.setItem("UserPublicChannels",JSON.stringify($scope.UserPublicChannels));
 							}
 						}
 					});
@@ -342,26 +337,22 @@
 					first : participanta,
 					second : participantb,
 					user: $scope.userNickname
-			}
+			};
 			$http({
 				method: 'POST',
 				url: 'http://localhost:8080/Proj/RemovePrivateChannelServlet',
-				data: subscription
+				data: JSON.stringify(subscription)
 			}).then(
 					function(response){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
-						console.log("RemovePrivateChannelServlet called, response is "+data.data);
-						console.log("data recieved from privateChannelRemove is "+data);
-						if (json != "fail"){
+						console.log("RemovePrivateChannelServlet called, response is "+response.data);
+						if (response.data != "fail"){
 							/*removing the channel from users channel list on screen*/
 							var index = -2;
-							for (i=0;i<$scope.UserPrivateChannels.length;i++)
-								if ($scope.UserPrivateChannels[i].channel == data.name)
+							for (var i=0;i<$scope.UserPrivateChannels.length;i++)
+								if ($scope.UserPrivateChannels[i].channel == response.data.name)
 									index = i;
 							if (index > -1){
 								$scope.UserPrivateChannels.splice(index, 1);
-								sessionStorage.setItem("UserPublicChannels",JSON.stringify($scope.UserPrivateChannels));
 
 							}
 						}
@@ -370,9 +361,7 @@
 
 		/*function that set displayed channel to selected channel*/
 		$scope.setChannel = function(channelName){
-			sessionStorage.setItem("showSearchResults",JSON.stringify(false));
-		$scope.showSearchResults = JSON.parse(sessionStorage.getItem("showSearchResults"));
-			$scope.ActiveChannel = JSON.parse(sessionStorage.getItem("ActiveChannel"));
+		$scope.showSearchResults = false;
 			if (($scope.ActiveChannel != undefined) && ($scope.ActiveChannel !=""))
 				$scope.removeUserFromChannelList($scope.ActiveChannel);
 			var arr =[];
@@ -381,13 +370,10 @@
 				url: 'http://localhost:8080/Proj/GetThreadsServlet/channelName/'+channelName
 			}).then(
 					function(data){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
 						console.log("GetThreadsServlet called, response is "+data.data);
-						console.log(data);
-						if (json != null){
+						if (data.data != null){
 							/*extracting threads from database according to channel*/
-							$scope.ThreadsToShow=json;
+							$scope.ThreadsToShow=data.data;
 							/*resetting mentions and notifications indicators for channel*/
 							for(var i=0;i<$scope.UserPublicChannels.length;i++){
 								if ($scope.UserPublicChannels[i].channel == channelName){
@@ -403,8 +389,8 @@
 								}
 							}
 							/*setting replies for all extracted threads to hidden*/
-							for (var i=0;i<ThreadsToShow.length;i++){
-								(ThreadsToShow[i])["showReplies"]=false;
+							for (var i=0;i<$scope.ThreadsToShow.length;i++){
+								($scope.ThreadsToShow[i])["showReplies"]=false;
 							}
 
 							/*setting view to show threads and to mark active channel*/
@@ -422,12 +408,10 @@
 			$http({
 				method: 'POST',
 				url: 'http://localhost:8080/Proj/RemoveUserFromChannelListServlet',
-				data: data
+				data: JSON.stringify(data)
 			}).then(
 				function(response){
-					var data = JSON.stringify(response.data);
-					var json = JSON.parse(data);
-					console.log("data sent from removeUserFromChannelList is "+json);
+					console.log("data sent from removeUserFromChannelList is "+response.data);
 				});
 		};
 
@@ -435,18 +419,16 @@
 			var credentials = {
 					usera : $scope.userNickname,
 					userb : nickname
-			}
+			};
 			$http({
 				method: 'POST',
 				url: 'http://localhost:8080/Proj/GetPrivateChatServlet',
-				data: credentials
+				data: JSON.stringify(credentials)
 			}).then(
 					function(response){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
-						console.log("data received from openPrivateChannel is "+json);
-						if (json != null){
-							setChannel(json.name);
+						console.log("data received from openPrivateChannel is "+response.data);
+						if (response.data != null){
+							setChannel(response.data.name);
 						}
 						else{
 							var channelDetails = {
@@ -459,14 +441,12 @@
 							$http({
 								method: 'POST',
 								url: 'http://localhost:8080/Proj/CreatePrivateChatServlet',
-								data: channelDetails
+								data: JSON.stringify(channelDetails)
 							}).then(
 									function(response){
-										var data = JSON.stringify(response.data);
-										var json = JSON.parse(data);
-										if (json != null){
-											$scope.UserPrivateChannels.push(json);
-											setChannel(json.name);
+										if (response.data != null){
+											$scope.UserPrivateChannels.push(response.data);
+											setChannel(response.data.name);
 											$scope.websocket.send(channelDetails);
 										}});
 						}
@@ -482,14 +462,12 @@
 				url: 'http://localhost:8080/Proj/GetNewestThreadsServlet/channelName/'+channelName
 			}).then(
 					function(response){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
 						console.log("GetNewestThreadsServlet called, response is "+data.data);
-						if (json != null){
+						if (response.data != null){
 							/*removing the channel from users channel list on screen*/
-							$scope.ThreadsToShow=json;
+							$scope.ThreadsToShow=response.data;
 							for (i=0;i<$scope.ThreadsToShow.length;i++)
-								(ThreadsToShow[i])["showReplies"]=false;
+								($scope.ThreadsToShowThreadsToShow[i])["showReplies"]=false;
 						$scope.showThreads =true;
 							$scope.ActiveChannel = channelName;
 							/*updating lastThreadDate for the scrollupdown functions*/
@@ -513,15 +491,13 @@
 			$http({
 				method: 'POST',
 				url: 'http://localhost:8080/Proj/GetNextTenThreadsUpServlet',
-				data: channelToGet
+				data: JSON.stringify(channelToGet)
 			}).then(
 					function(data){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
 						console.log("GetNextTenThreadsUpServlet called, response is "+response.data);
-						if (json != null){
+						if (response.data != null){
 							/*removing the channel from users channel list on screen*/
-							var newThreads = data;
+							var newThreads = response.data;
 							for (var i=0;i<newThreads.length;i++){
 								(newThreads[i])["showReplies"]=false;
 							}
@@ -555,15 +531,13 @@
 			$http({
 				method: 'POST',
 				url: 'http://localhost:8080/Proj/GetNextTenThreadsDownServlet',
-				data: channelToGet
+				data: JSON.stringify(channelToGet)
 			}).then(
 					function(response){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
 						console.log("GetNextTenThreadsDownServlet called, response is "+response.data);
-						if (json != null){
+						if (response.data != null){
 							/*removing the channel from users channel list on screen*/
-							var newThreads = data;
+							var newThreads = response.data;
 							for (var i=0;i<newThreads.length;i++){
 								(newThreads[i])["showReplies"]=false;
 							}
@@ -595,15 +569,12 @@
 			$http({
 				method: 'POST',
 				url: 'http://localhost:8080/Proj/GetNextThreadUpServlet',
-				data: channelToGet
+				data: JSON.stringify(channelToGet)
 			}).then(
 					function(response){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
 						console.log("GetNextThreadUpServlet called, response is "+response.data);
-						console.log("getNextThreadUp result "+data);
-						if (json != null){
-							var newThread = data;
+						if (response.data != null){
+							var newThread = response.data;
 							newThread["showReplies"]=false;
 						// 	sessionStorage.setItem("showThreads",JSON.stringify(true));
 						// $scope.showThreads = JSON.parse(sessionStorage.getItem("showThreads"));
@@ -634,14 +605,12 @@
 			$http({
 				method: 'POST',
 				url: 'http://localhost:8080/Proj/GetNextThreadDownServlet',
-				data: channelToGet
+				data: JSON.stringify(channelToGet)
 			}).then(
 					function(response){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
-						console.log("getNextThreadUp result "+response);
-						if (json != null){
-							var newThread = data;
+						console.log("getNextThreadUp result "+response.data);
+						if (response.data != null){
+							var newThread = response.data;
 							newThread["showReplies"]=false;
 						// 	sessionStorage.setItem("showThreads",JSON.stringify(true));
 						// $scope.showThreads = JSON.parse(sessionStorage.getItem("showThreads"));
@@ -674,7 +643,6 @@
 			$scope.lastY = currY;
 		}});
 
-
 		/*fucntion that checks whether the current checked channel from channels list is active*/
 		$scope.isActiveChannel = function(channelName){
 			return $scope.ActiveChannel == channelName;
@@ -688,15 +656,13 @@
 				url: 'http://localhost:8080/Proj/GetRepliesServlet/threadID/'+thread_id
 			}).then(
 					function(response){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
-						console.log("data from getReplies is "+data);
-						if (json != null){
+						console.log("data from getReplies is "+response.data);
+						if (response.data != null){
 							/*returning array of replies*/
-							for (var i=0;i<data.length;i++){
-								(json[i])["showReplies"]=false;
+							for (var i=0;i<response.data.length;i++){
+								(response.data[i])["showReplies"]=false;
 							}
-							return data;
+							return response.data;
 						}
 						else return arr;
 					});
@@ -740,22 +706,19 @@
 				$http({
 					method: 'POST',
 					url: 'http://localhost:8080/Proj/PostThreadServlet',
-					data: message
+					data: JSON.stringify(message)
 				}).then(
 						function(response){
-							var data = JSON.stringify(response.data);
-							var json = JSON.parse(data);
 							console.log("PostThreadServlet called, response is "+response.data);
-							if (json == "success"){
+							if (response.data == "success"){
 								//sending the message in websocket
 								$scope.websocket.send(message);
 								//reseting the chat typing field
 								$scope.message_input="";
 							}
 						});
-			}
-			/*now handling the case where the posted message is a reply*/
-			else{
+			}else{
+		/*now handling the case where the posted message is a reply*/
 				var message = {
 						author : $scope.userNickname,
 						channel : $scope.ActiveChannel,
@@ -771,13 +734,11 @@
 				$http({
 					method: 'POST',
 					url: 'http://localhost:8080/Proj/PostReplyServlet',
-					data: message
+					data: JSON.stringify(message)
 				}).then(
 						function(response){
-							var data = JSON.stringify(response.data);
-							var json = JSON.parse(data);
 							console.log("PostReplyServlet called, response is "+response.data);
-							if (json == "success"){
+							if (response.data == "success"){
 								//sending the message in websocket
 								$scope.websocket.send(message);
 								//reseting the chat typing field
@@ -811,30 +772,26 @@
 		/*function that updates notifications count for a specific private channel according to a new message for subscribed member that
 		is not currently in the channel*/
 		$scope.updateNotificationsPrivate = function(channelName){
-			for (var i=0;i<$scope.UserPrivateChannels.length;i++){
-				if (($scope.UserPrivateChannels[i]).name == channelName){
+			for (var i=0;i<$scope.UserPrivateChannels.length;i++)
+				if (($scope.UserPrivateChannels[i]).name == channelName)
 					($scope.UserPrivateChannels[i]).notifications++;
-			}
+
 		};
 
 		/*function that updates mentions count for a specific public channel according to a new message for subscribed member that
 		is not currently in the channel*/
 		$scope.updateMentionsPublic = function(channelName){
-			for (var i=0;i<$scope.UserPublicChannels.length;i++){
-				if (($scope.UserPublicChannels[i]).channel == channelName){
+			for (var i=0;i<$scope.UserPublicChannels.length;i++)
+				if (($scope.UserPublicChannels[i]).channel == channelName)
 					($scope.UserPublicChannels[i]).mentions++;
-				}
-			}
 		};
 
 		/*function that updates mentions count for a specific private channel according to a new message for subscribed member that
 		is not currently in the channel*/
 		$scope.updateMentionsPrivate = function(channelName){
-			for (var i=0;i<$scope.UserPrivateChannels.length;i++){
-				if (($scope.UserPrivateChannels[i]).name == channelName){
+			for (var i=0;i<$scope.UserPrivateChannels.length;i++)
+				if (($scope.UserPrivateChannels[i]).name == channelName)
 					($scope.UserPrivateChannels[i]).mentions++;
-				}
-			}
 		};
 
 		/*function that updates notifications count for a specific public channel according to a new message for subscribed member that
@@ -843,21 +800,19 @@
 			/*sub will pass the channel details of which to check whether or not there were mentions of the user*/
 			var userDetails = {
 					nickname : $scope.userNickname,
-					previousLog : $scope.user.lastlastlogged,
+					previousLog : $scope.lastlastlogged,
 					channel : subscription.channel
 			}
 			/*adding new message to database*/
 			$http({
 				method: 'POST',
 				url: 'http://localhost:8080/Proj/GetNotificationsServlet',
-				data: userDetails
+				data: JSON.stringify(userDetails)
 			}).then(
 					function(response){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
-						console.log("data recieved from GetNotificationsServlet is "+response);
-						if (json != 0)
-							return json;
+						console.log("data recieved from GetNotificationsServlet is "+response.data);
+						if (response.data != 0)
+							return response.data;
 					});
 		};
 
@@ -867,21 +822,19 @@
 			/*sub will pass the channel details of which to check whether or not there were mentions of the user*/
 			var userDetails = {
 					nickname : $scope.userNickname,
-					previousLog : $scope.user.lastlastlogged,
+					previousLog : $scope.lastlastlogged,
 					channel : subscription.channel
 			}
 			/*adding new message to database*/
 			$http({
 				method: 'POST',
 				url: 'http://localhost:8080/Proj/GetMentionsServlet',
-				data: userDetails
+				data: JSON.stringify(userDetails)
 			}).then(
 					function(response){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
-						console.log("data recieved from GetMentionsServlet is "+response);
-						if (json != 0)
-							return json;
+						console.log("data recieved from GetMentionsServlet is "+response.data);
+						if (response.data != 0)
+							return response.data;
 					});
 		};
 
@@ -891,21 +844,19 @@
 			/*sub will pass the channel details of which to check whether or not there were mentions of the user*/
 			var userDetails = {
 					nickname : $scope.userNickname,
-					previousLog : $scope.user.lastlastlogged,
+					previousLog : $scope.lastlastlogged,
 					channel : channel.name
 			}
 			/*adding new message to database*/
 			$http({
 				method: 'POST',
 				url: 'http://localhost:8080/Proj/GetNotificationsServlet',
-				data: userDetails
+				data: JSON.stringify(userDetails)
 			}).then(
 					function(response){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
-						console.log("data recieved from GetNotificationsServlet is "+response);
-						if (json != 0)
-							return json;
+						console.log("data recieved from GetNotificationsServlet is "+response.data);
+						if (response.data != 0)
+							return response.data;
 					});
 		};
 
@@ -915,29 +866,27 @@
 			/*sub will pass the channel details of which to check whether or not there were mentions of the user*/
 			var userDetails = {
 					nickname : $scope.userNickname,
-					previousLog : $scope.user.lastlastlogged,
+					previousLog : $scope.lastlastlogged,
 					channel : channel.name
 			}
 			/*adding new message to database*/
 			$http({
 				method: 'POST',
 				url: 'http://localhost:8080/Proj/GetMentionsServlet',
-				data: userDetails
+				data: JSON.stringify(userDetails)
 			}).then(
 					function(response){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
-						console.log("data recieved from GetMentionsServlet is "+data);
-						if (json != 0)
-							return json;
+						console.log("data recieved from GetMentionsServlet is "+response.data);
+						if (response.data != 0)
+							return response.data;
 					});
 		};
 
 		/*function that sets the view of create public channel pannel*/
 		$scope.createPublicChannel = function(){
-						console.log("we are here at createPublicChannel");
-					$scope.welcomeScreen=true;
-					console.log($scope.welcomeScreen);
+				console.log("we are here at createPublicChannel");
+				$scope.welcomeScreen=false;
+				console.log($scope.welcomeScreen);
 				$scope.createChannelScreen = true;
 				console.log($scope.createChannelScreen);
 		};
@@ -945,26 +894,25 @@
 		/*function that actually creates the public channel upon clicking on create button on create public channel pannel*/
 		$scope.publicChannelCreate = function(){
 			var newChannelDetails = {
-					type : "Public",
-					name : $scope.channel_name,
-					creator : $scope.userName,
-					description : $scope.channel_description,
-					created : Date.now()
+					channelName : $scope.channel_name,
+					channelType : null,
+					channelCreator : $scope.userName,
+					//channelCreationTime : Date.now(),
+					channelDescription :$scope.channel_description
 			};
+
+			console.log(JSON.stringify(newChannelDetails));
 			/*adding new message to database*/
 			$http({
 				method: 'POST',
-				url: 'http://localhost:8080/Proj/CreateChannelServlet',
-				data: newChannelDetails
+				url: 'http://localhost:8080/Proj/CreatePublicChannelServlet',
+				data: JSON.stringify(newChannelDetails)
 			}).then(
 					function(response){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
 						console.log("CreateChannelServlet called, response is "+response.data);
-						if (json != "fail"){
+						if (response.data.trim() != "fail"){
 							var subscription = data;
 							$scope.UserPublicChannels.push(subscription);
-							sessionStorage.setItem("UserPublicChannels",JSON.stringify($scope.UserPublicChannels));
 						}
 					});
 				$scope.welcomeScreen=false;
@@ -983,14 +931,12 @@
 			$http({
 				method: 'POST',
 				url: 'http://localhost:8080/Proj/SearchPublicChannelsServlet',
-				data: searchInfo
+				data: JSON.stringify(searchInfo)
 			}).then(
 					function(response){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
 						console.log("SearchPublicChannelsServlet called, response is "+response.data);
-						if (json != null){
-							var channels = json;
+						if (response.data != null){
+							var channels = response.data;
 							//empty search results array first*/
 							$scope.searchPublicChannels=[];
 							for (var i=0;i<channels.length;i++)
@@ -1001,8 +947,7 @@
 		};
 
 		$scope.channelSubscribe = function(channelName){
-			sessionStorage.setItem("showSearchResults",JSON.stringify(false));
-		$scope.showSearchResults = JSON.parse(sessionStorage.getItem("showSearchResults"));
+		$scope.showSearchResults = false;
 			var subscriptionInfo = {
 					channel : channelName,
 					user : $scope.userName
@@ -1010,24 +955,20 @@
 			$http({
 				method: 'POST',
 				url: 'http://localhost:8080/Proj/PublicChannelSubscribeServlet',
-				data: subscriptionInfo
+				data: JSON.stringify(subscriptionInfo)
 			}).then(
 					function(response){
-						var data = JSON.stringify(response.data);
-						var json = JSON.parse(data);
 						console.log("PublicChannelSubscribeServlet called, response is "+response.data);
-						if (json != "fail"){
-							var channel = json;
+						if (response.data.trim() != "fail"){
+							var channel = response.data;
 							$scope.searchPublicChannels.push(channel);
 							$scope.searchPublicChannels[$scope.searchPublicChannels.length-1].setAttribute(mentions,0);
 							$scope.searchPublicChannels[$scope.searchPublicChannels.length-1].setAttribute(notifications,0);
-							sessionStorage.setItem("searchPublicChannels",JSON.stringify($scope.searchPublicChannels));
-							$scope.searchPublicChannels=JSON.parse(sessionStorage.getItem("searchPublicChannels"));
 
 						}
 					});
 		};
 
 		};
-	};
+
 })();

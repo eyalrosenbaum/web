@@ -18,23 +18,22 @@
         <h1 class="main-page-header">JamSession</h1>
         <p  class="main-page-header">Your one stop shop for all of your musician collaboration needs!</p>
         <div class="row">
-
-      <div class="input-group" id="channelSearch" ng-hide="welcomeScreen">
+          <div class="input-group" id="channelSearch" ng-hide="welcomeScreen">
             <input type="text" class="form-control" ng-model="channelSearchText" placeholder="search channel">
             <span class="input-group-btn">
               <button class="btn btn-default" type="submit" ng-click="searchChannels()"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
             </span>
           </div>
         <div>
-        <form id="searchForm" ng-hide="welcomeScreen">
-          <input type="radio" id="radioName" name="searchCriteria" value="by channel name" checked>channel name
-          <input type="radio" id="radioNick" name="searchCriteria" value="by user nickname">user nickname
-        </form>
-      </div>
-      <div id="logout" ng-hide="welcomeScreen">
-        <span>logout  <button id="logout-button" class="btn btn-default btn-xs" type="submit" ng-click="logout()"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span></button>
-      </span>
-    </div>
+          <form id="searchForm" ng-hide="welcomeScreen">
+            <input type="radio" id="radioName" name="searchCriteria" value="by channel name" checked>channel name
+            <input type="radio" id="radioNick" name="searchCriteria" value="by user nickname">user nickname
+          </form>
+        </div>
+        <div id="logout" ng-hide="welcomeScreen">
+          <span>logout  <button id="logout-button" class="btn btn-default btn-xs" type="submit" ng-click="logout()"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span></button>
+          </span>
+        </div>
         <!--this button is for mobile screens only-->
         <button id="navbarToggle" type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#collapsable-nav" aria-expanded="false">
           <span class="sr-only">Toggle navigation</span>
@@ -67,54 +66,53 @@
         <span>410-602-5008</span></a><div>* We Deliver</div>
       </li>
       --->
-    </ul><!-- #nav-list -->
-  </div><!-- .collapse .navbar-collapse -->
-</div><!-- .container -->
-</nav><!-- #header-nav -->
+        </ul><!-- #nav-list -->
+      </div><!-- .collapse .navbar-collapse -->
+    </div><!-- .container -->
+  </nav><!-- #header-nav -->
 <!---  <div class="jumbotron main-page-jumbo">
 <div id="logo-img">
 
 </div>--->
 
-<div class="container-fluid" >
+  <div class="container-fluid" >
   <!-- this div will be for the side bar for scrolling the channels-->
   <!--starts here-->
-  <div class="client-channel-list-container col-lg-2" ng-hide="welcomeScreen">
-    <div class="public-channels">
-      <h3 id="public-channels-header">public channels</h3>
-      <ul id = "public-channels-list">
-        <li ng-repeat = "channel in UserPublicChannels"
-          ng-class = "{'active' : isActiveChannel(channel.channel)}"
-          ng-click = "setChannel(channel.channel)" ng-show="showChannels">{{channel.channel}}
-          <span class="badge" ng-show=(channel.mentions))>{{channel.mentions}}</span><span class="badge" ng-show=(channel.notifications)>{{channel.notifications}}</span>
-          <button type="button" class="btn btn-default btn-xs" aria-label="Left Align" ng-click="publicChannelRemove(channel.channel)">
-            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-          </button>
-        </li>
-      </ul>
-    </div>
-    <div class="private-channels">
-      <h3 id="private-channels-header">private channels</h3>
-      <ul id = "private-channels-list">
-        <li ng-repeat = "channel in UserPrivateChannels"
-          ng-class = "{'active' : isActiveChannel(channel.name)}"
-          ng-click = "setChannel(channel.name)" ng-show="showChannels">{{channel.name}}
-          <span class="badge" ng-show=(channel.mentions)>{{channel.mentions}}</span><span class="badge" ng-show=(channel.notifications)>{{channel.notifications}}</span>
-          <button type="button" class="btn btn-default btn-xs" aria-label="Left Align" ng-click="privateChannelRemove(channel.participanta,channel.participantb)">
-            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-          </button>
-        </li>
-      </ul>
-    </div>
-    <div id="channelCreate">
-      <h6>Create Channel</h6>
-      <button class="btn btn-default btn-xs" aria-label="Left Align" ng-click="createPublicChannel()">
-        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-      </button>
-
+    <div class="client-channel-list-container col-lg-2" ng-hide="welcomeScreen">
+      <div class="public-channels">
+        <h3 id="public-channels-header">public channels</h3>
+        <ul id = "public-channels-list">
+          <li ng-repeat = "channel in UserPublicChannels"
+            ng-class = "{'active' : isActiveChannel(channel.channel)}"
+            ng-click = "setChannel(channel.channel)" ng-show="showChannels">{{channel.channel}}
+            <span class="badge" ng-show=(channel.mentions)>{{channel.mentions}}</span><span class="badge" ng-show=(channel.notifications)>{{channel.notifications}}</span>
+            <button type="button" class="btn btn-default btn-xs" aria-label="Left Align" ng-click="publicChannelRemove(channel.channel)">
+              <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+            </button>
+          </li>
+        </ul>
+      </div>
+      <div class="private-channels">
+        <h3 id="private-channels-header">private channels</h3>
+        <ul id = "private-channels-list">
+          <li ng-repeat = "channel in UserPrivateChannels"
+            ng-class = "{'active' : isActiveChannel(channel.name)}"
+            ng-click = "setChannel(channel.name)" ng-show="showChannels">{{channel.name}}
+            <span class="badge" ng-show=(channel.mentions)>{{channel.mentions}}</span><span class="badge" ng-show=(channel.notifications)>{{channel.notifications}}</span>
+            <button type="button" class="btn btn-default btn-xs" aria-label="Left Align" ng-click="privateChannelRemove(channel.participanta,channel.participantb)">
+              <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+            </button>
+          </li>
+        </ul>
+      </div>
+      <div id="channelCreate">
+        <h6>Create Channel</h6>
+        <button class="btn btn-default btn-xs" aria-label="Left Align" ng-click="createPublicChannel()">
+          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+        </button>
+      </div>
     </div>
   </div>
-</div>
   <!--ends here-->
   <div id = "client-body">
     <div id = "col-messages">
@@ -197,24 +195,24 @@
       </div>
 
       <!--this is the create public channel pannel-->
-            <div class="container" id="field-space" ng-show="parent.createChannelScreen">
-              <div class="col-lg-12">
+            <div class="container" id="create-block" ng-show="createChannelScreen">
+              <div class="col-lg-8">
                 <!--signup screen-->
-                <div class="tab-content">
+                <div class="tab-content" id="title">
                   <h3 id="createChannelTitle"> Create Channel </h3>
-                  <div id="channelCreation">
+                  <div>
                     <form>
                       <div>
                         <!--channel name enter--->
-                        <div class="form-group col-lg-6">
+                        <div class="form-group col-lg-8">
                           <input id="name" type="text" ng-model="channel_name" class="form-control" name="channel_name" placeholder="channel name*"maxlength=30 required>
                         </div>
                         <!--channel description enter--->
-                        <div class="form-group col-lg-6">
+                        <div class="form-group col-lg-8">
                           <input id="description" type="text" ng-model="channel_description" class="form-control" name="channel_description" placeholder="channel description*" maxlength=500 required>
                         </div>
                       </div>
-                      <br><button id="channel_create_btn" type="submit" class="btn btn-default" ng-click="PublicChannelCreate()">Create</button>
+                      <br><button id="channel_create_btn" type="submit" class="btn btn-default" ng-click="publicChannelCreate()">Create</button>
                   </form>
                 </div>
                 <div ng-show="ErrorExists==true">

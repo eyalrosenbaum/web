@@ -1,35 +1,18 @@
-.form-Label{
-  color: coral;
-}
-.top-row{
-  float: left;
-}
-
-.signup-tab{
-margin-left: 2%;
-margin-bottom: 2%;
-}
-
-
 #sign-in-btn{
   margin-top: -20px;
   margin-left: 41%;
 }
-
 #login-btn{
   margin-left: 41%;
 }
-
 #ErrorMessage{
     color: red;
 }
-
 #loadPic{
     position: fixed;
     left: 60%;
     top: 45%;
 }
-
 #down{
   margin: -6px 0 10px;
 }
@@ -38,7 +21,6 @@ margin-bottom: 2%;
     color: white;
     border: 0px;
 }
-
 #field-space{
   background-color: black;
   align-items: center;
@@ -49,7 +31,20 @@ margin-bottom: 2%;
   width: 40%;
   height:550px;
 }
-
+#create-block{
+  background-color: currentColor;
+    width: 50%;
+    height: 227px;
+}
+#title{
+  color:coral;
+}
+#createChannelTitle{
+  color: coral;
+}
+#channel_create_btn{
+  margin-left: 100px;
+}
 #top{
   margin: 16px 0 10px;
 }
@@ -57,151 +52,24 @@ margin-bottom: 2%;
   color: coral;
   font-family: fantasy;
 }
-
-
-
 #navTab{
   margin-bottom: 1%;
   margin-left: 2%;
 }
-
 #logo-img{
   width: 130px;
   float: left;
 }
-body{
-
-  background-color: #e96;
-}
-.main-page-header{
-  font-family: impact;
-  margin-left: 5%;
-  color:coral;
-}
-
 #userMessage{
   position: absolute;
   left: 210px;
   bottom: 35px;
-}
-
-.messagePhotos{
-  float: left;
-}
-
-.photoName{
-  vertical-align: top;
-  display: inline-block;
-  text-align: center;
-  width: 50px;
-}
-
-.messagePhotos{
-  width: 50px;
-  height: 50px;
-  background-color: grey;
-}
-
-.caption{
-  display: block;
-}
-
-.client-channel-list-container{
-  background-color: grey;
-  background-image:  url("../Guitar-on-Fire.jpg");
-  z-index: 100;
-  width: 150px;
-  height: 100%;
-  position: fixed;
-  margin-top: -22px;
-  margin-left: -15px;
-}
-input.textarea{
-  position:fixed;
-  bottom:0px;
-  left: 151px;
-  right: 0px;
-  width: 100%;
-  height: 50px;
-  z-index:  99;
-  background: orangered;
-  border: none;
-  outline: none;
-  padding-left: 55px;
-  padding-right: 55px;
-  color: white;
-  font-weight: 400;
-}
-.emojis {
-  position: fixed;
-  display: block;
-  bottom: 8px;
-  left: 160px;
-  width: 34px;
-  height: 34px;
-  background-image: url(http://i.imgur.com/5WUpcPZ.png);
-  background-repeat: no-repeat;
-  background-size: cover;
-  z-index: 100;
-  cursor: pointer;
-}
-.emojis:active{
-  opacity: 0.9;
-}
-.messageBody{
-  float: left;
-  width: auto;
-  left: 155px;
-  max-width: 80%;
-  position: relative;
-  clear: both;
-  background: white;
-  padding: 0.5em 1em;
-  background: linear-gradient(40deg, rgba(255, 255, 255, 0.2) 00%, rgba(255,255,255,0.3) 100%);
-  border-radius: 3px;
-  box-shadow: 0 5px 30px rgba(255,255,255,0.1);
-  margin-bottom: -10px;
-  color: black;
-  word-wrap: break-word;
-  font-size: 1em;
-  margin-top: 30px;
-
-
-}
-
-.messageBox{
-  position: relative;
-  background: white;
-  display: block;
-  width:50%;
-  padding: 10px;
-  box-sizing: border-box;
-}
-.thumbnail{
-  display: inline-block;
-  background: #bfbfbf;
-  width: 50px;
-  color:white;
-  line-height: 50px;
-  text-align: center;
-  text-decoration: none;
-
-}
-.content{
-  display: inline-block;
-  margin-left: 150px;
-  vertical-align: top;
-  line-height: 1;
 }
 #message-form{
   position: fixed;
     width: 76%;
     bottom: 3%;
     left: 20%;
-}
-
-h6{
-  color: coral;
 }
 #message-input{
     position: absolute;
@@ -229,16 +97,13 @@ h6{
     line-height: 1.2rem;
     user-select: auto;
     display: inline-block;
-
 }
-
 #channelSearch{
   position: fixed;
     width: 30%;
     right: 3%;
     top: 7%;
 }
-
 #searchForm{
   position: fixed;
     top: 13%;
@@ -246,7 +111,6 @@ h6{
     font-size: small;
     color: coral;
 }
-
 #logout{
   position: fixed;
 right: 1%;
@@ -261,7 +125,6 @@ color: coral;
   z-index: 100;
   width:100%;
 }
-
 #sendBtn{
   position:absolute;
   /*float: left;*/
@@ -269,4 +132,113 @@ color: coral;
   left:860px;
   z-index: 100;
   /*display: inline-block;*/
+}
+h6{
+  color: coral;
+}
+
+#public-channels-list,#private-channels-list{
+  list-style-type: none;
+}
+body{
+  background-color: #e96;
+}
+.form-Label{
+  color: coral;
+}
+.top-row{
+  float: left;
+}
+.signup-tab{
+margin-left: 2%;
+margin-bottom: 2%;
+}
+.main-page-header{
+  font-family: impact;
+  margin-left: 5%;
+  color:coral;
+}
+.messagePhotos{
+  float: left;
+}
+.photoName{
+  vertical-align: top;
+  display: inline-block;
+  text-align: center;
+  width: 50px;
+}
+.messagePhotos{
+  width: 50px;
+  height: 50px;
+  background-color: grey;
+}
+.caption{
+  display: block;
+}
+.client-channel-list-container{
+  background-color: grey;
+  background-image:  url("../Guitar-on-Fire.jpg");
+  z-index: 100;
+  width: 150px;
+  height: 100%;
+  position: fixed;
+  margin-top: -22px;
+  margin-left: -15px;
+}
+input.textarea{
+  position:fixed;
+  bottom:0px;
+  left: 151px;
+  right: 0px;
+  width: 100%;
+  height: 50px;
+  z-index:  99;
+  background: orangered;
+  border: none;
+  outline: none;
+  padding-left: 55px;
+  padding-right: 55px;
+  color: white;
+  font-weight: 400;
+}
+.messageBody{
+  float: left;
+  width: auto;
+  left: 155px;
+  max-width: 80%;
+  position: relative;
+  clear: both;
+  background: white;
+  padding: 0.5em 1em;
+  background: linear-gradient(40deg, rgba(255, 255, 255, 0.2) 00%, rgba(255,255,255,0.3) 100%);
+  border-radius: 3px;
+  box-shadow: 0 5px 30px rgba(255,255,255,0.1);
+  margin-bottom: -10px;
+  color: black;
+  word-wrap: break-word;
+  font-size: 1em;
+  margin-top: 30px;
+}
+.messageBox{
+  position: relative;
+  background: white;
+  display: block;
+  width:50%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+.thumbnail{
+  display: inline-block;
+  background: #bfbfbf;
+  width: 50px;
+  color:white;
+  line-height: 50px;
+  text-align: center;
+  text-decoration: none;
+}
+.content{
+  display: inline-block;
+  margin-left: 150px;
+  vertical-align: top;
+  line-height: 1;
 }

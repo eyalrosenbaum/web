@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="styles/bootstrap.min.css">
   <link rel="stylesheet" href="styles/styles.css">
 </head>
-<body ng-controller="jamSessionController">
+<body ng-controller="jamSessionController" id="body">
   <nav id="header-nav" class="navbar navbar-default" >
     <div class="container">
       <img src="./solkey.jpg" id="logo-img">
@@ -81,35 +81,39 @@
     <div class="client-channel-list-container col-lg-2" ng-hide="welcomeScreen">
       <div class="public-channels">
         <h3 id="public-channels-header">public channels</h3>
-        <ul id = "public-channels-list">
+        <ul id = "public-channels-list" class="nav nav-pills nav-stacked">
           <li ng-repeat = "channel in UserPublicChannels"
             ng-class = "{'active' : isActiveChannel(channel.channel)}"
-            ng-click = "setChannel(channel.channel)" ng-show="showChannels">{{channel.channel}}
+            ng-show="showChannels">
+            <a data-toggle="tab" ng-click = "setChannel(channel.channel)">{{channel.channel}}
             <span class="badge" ng-show=(channel.mentions)>{{channel.mentions}}</span><span class="badge" ng-show=(channel.notifications)>{{channel.notifications}}</span>
-            <button type="button" class="btn btn-default btn-xs" aria-label="Left Align" ng-click="publicChannelRemove(channel.channel)">
+          <span> <button type="button" class="btn btn-default btn-xs" aria-label="Left Align" ng-click="publicChannelRemove(channel.channel)">
               <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
             </button>
+          </span>
+        </a>
           </li>
         </ul>
       </div>
       <div class="private-channels">
         <h3 id="private-channels-header">private channels</h3>
-        <ul id = "private-channels-list">
+        <ul id = "private-channels-list" class="nav nav-pills nav-stacked">
           <li ng-repeat = "channel in UserPrivateChannels"
-            ng-class = "{'active' : isActiveChannel(channel.name)}"
-            ng-click = "setChannel(channel.name)" ng-show="showChannels">{{channel.name}}
-            <span class="badge" ng-show=(channel.mentions)>{{channel.mentions}}</span><span class="badge" ng-show=(channel.notifications)>{{channel.notifications}}</span>
-            <button type="button" class="btn btn-default btn-xs" aria-label="Left Align" ng-click="privateChannelRemove(channel.participanta,channel.participantb)">
+            ng-class = "{'active' : isActiveChannel(channel.name)}" ng-show="showChannels">
+            <a data-toggle="tab" ng-click = "setChannel(channel.name)" >{{channel.name}}
+            <span class="badge" ng-show=(channel.mentions)>{{channel.mentions}}</span><span class="badge" ng-show=(channel.notifications)>{{channel.notifications}}</span></a>
+            <span><button type="button" class="btn btn-default btn-xs" aria-label="Left Align" ng-click="privateChannelRemove(channel.participanta,channel.participantb)">
               <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
             </button>
+          </span>
           </li>
         </ul>
       </div>
       <div id="channelCreate">
-        <h6>Create Channel</h6>
+        <h6>Create Channel</h6><span>
         <button class="btn btn-default btn-xs" aria-label="Left Align" ng-click="createPublicChannel()">
           <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-        </button>
+        </button></span>
       </div>
     </div>
   </div>
@@ -231,22 +235,30 @@
       </ul>
 
       <!-- this table holds the search results -->
-<table id="public_channel_search_results" ng-show="parent.showSearchResults">
-  <tr>
-	<th>Channel Name</th>
-	<th>Channel Description</th>
-	<th>Number of participants</th>
-  <th>Subscribe to Channel</th>
-  </tr>
+<div id="tableContainer">
+<table id="myTable" class="table table-sm table-hover" ng-show="showSearchResults">
+  <thead>
+    <tr>
+      <th>#</th>
+    	<th>Channel Name</th>
+    	<th>Channel Description</th>
+    	<th>Number of participants</th>
+      <th>Subscribe to Channel</th>
+    </tr>
+  </thead>
+  <tbody>
   <!-- output each result into the table -->
-  <tr ng-repeat="x in searchPublicChannels | limitTo: 100">
-    <!-- ng-bind-html allows to bind a variable to the innerHTML part of the HTML element -->
-    <td>{{x.channelName}}</td><td>{{x.channelDescription}}</td><td>{{x.numberOfUsers}}</td><td><button type="button" class="btn btn-default"
+    <tr ng-repeat="x in searchPublicChannels | limitTo: 100">
+      <th scope = "row">{{$index+1}}</th>
+      <!-- ng-bind-html allows to bind a variable to the innerHTML part of the HTML element -->
+      <td>{{x.channelName}}</td><td>{{x.channelDescription}}</td><td>{{x.numberOfUsers}}</td>
+      <td><button type="button" class="btn btn-default"
       aria-label="Left Align" ng-click="channelSubscribe(x.channelName)">
-      <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span></td>
-    </button>
-  </tr>
+      <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span></button></td>
+    </tr>
+  </tbody>
 </table>
+<div>
 
         <!--
         <div class="message" ng-hide="welcomeScreen.value">
@@ -266,7 +278,7 @@
     <div class="row">
 
   <div class="col-lg-6">
-    <div class="input-group" id="message-form">
+    <div class="input-group" id="message-form" ng-show=showThreads>
       <input type="text" class="form-control" ng-model="message_input" placeholder="enter message">
       <span class="input-group-btn">
         <button class="btn btn-default" type="submit">send!</button>

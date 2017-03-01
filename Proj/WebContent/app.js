@@ -157,10 +157,11 @@
 				url: 'http://localhost:8080/Proj/FindSubscriptionServlet',
 			}).then(
 					function(response){
+						if (response.data!=undefined){
 						$scope.UserPublicChannels = response.data;
 
-						console.log("FindSubscriptionServlet called, UserPublicChannelsד is "+$scope.UserPublicChannels);
-
+						console.log("FindSubscriptionServlet called, UserPublicChannels is "+$scope.UserPublicChannels);
+						/*setting the attributes mentions and notifications to each of the user's channel, and afterwards updating them*/
 						for(var i=0;i<$scope.UserPublicChannels.length;i++){
 							($scope.UserPublicChannels[i]).mentions = 0;
 							($scope.UserPublicChannels[i]).notifications = 0;
@@ -168,7 +169,7 @@
 							($scope.UserPublicChannels[i]).mentions = $scope.updateMentionsOnLoadPublic($scope.UserPublicChannels[i]);
 							console.log("$scope.UserPublicChannels["+i+"] is "+$scope.UserPublicChannels[i]);
 						}
-
+					}
 
 					});
 		};
@@ -181,16 +182,19 @@
 			}).then(
 					function(response){
 						console.log("FindPrivateChannelsServlet called, response is "+response.data);
-						if (response.data!=null){
+						if (response.data!=undefined){
 								$scope.UserPrivateChannels = response.data;
-							for(var i=0;i<$scope.UserPublicChannels.length;i++){
-								($scope.UserPrivateChannels[i]).setAttribute(mentions,0);
-								($scope.UserPrivateChannels[i]).setAttribute(notifications,0);
-								($scope.UserPrivateChannels[i]).notifications = $scope.updateNotificationsOnLoadPrivate(($scope.UserPrivateChannels[i]));
-								($scope.UserPrivateChannels[i]).mentions = $scope.updateMentionsOnLoadPrivate(($scope.UserPrivateChannels[i]));
+							for(var i=0;i<$scope.UserPrivateChannels.length;i++){
 								console.log("$scope.UserPrivateChannels["+i+"] is "+$scope.UserPrivateChannels[i]);
+								/*setting the attributes mentions and notifications to each of the user's channel, and afterwards updating them*/
+								$scope.UserPrivateChannels[i].mentions = 0;
+								$scope.UserPrivateChannels[i].notifications = 0;
+								$scope.UserPrivateChannels[i].notifications = $scope.updateNotificationsOnLoadPrivate(($scope.UserPrivateChannels[i]));
+								$scope.UserPrivateChannels[i].mentions = $scope.updateMentionsOnLoadPrivate(($scope.UserPrivateChannels[i]));
+
 							}
 						}
+
 					});
 		};
 
@@ -206,9 +210,13 @@
 				/*data: */JSON.stringify(userCredentials)
 			/*}*/).then(
 					function(response){
-
-						console.log("LoginServlet called, response is "+response.data.userName);
-						if (response.data != null){
+						if ((typeof response.data === 'string')&&(response.data.trim() == "fail")){
+							$scope.ErrorExists = true;
+							$scope.ErrorMsg = "wrong username or password";
+						}
+						else{
+							console.log("LoginServlet called, response is "+response.data.userName);
+							if (response.data.userName != undefined){
 							$scope.userName=response.data.userName;
 							console.log("userName is "+ $scope.userName);
 							$scope.password=response.data.password;
@@ -229,6 +237,7 @@
 							console.log("userPrivateChannels are at login "+$scope.UserPrivateChannels.length);
 							console.log("UserPublicChannels are at login "+$scope.UserPublicChannels.length);
 						}
+					}
 					});
 		};
 
@@ -262,12 +271,9 @@
 								$scope.islogged = response.data.islogged;
 								$scope.lastLogged =new Date(response.data.lastLogged)
 								$scope.lastlastlogged = new Date(response.data.lastLogged)
-							$scope.welcomeScreen=false;
-								$scope.getUserPublicChannels($scope.userNickname);
-								$scope.getUserPrivateChannels($scope.userNickname);
-							$scope.showChannels = true;
-							console.log("userPrivateChannels are at login "+$scope.UserPrivateChannels);
-							console.log("UserPublicChannels are at login "+$scope.UserPublicChannels);
+								$scope.welcomeScreen=false;
+								$scope.showChannels = true;
+								
 							}
 
 					});
@@ -285,7 +291,7 @@
 				data: JSON.stringify(UserDetails)
 			}).then(
 					function(response){
-						if (response.data.trim() == "success"){
+						if ((typeof response.data === 'string') && (response.data.trim() == "success")){
 
 							$scope.userName="";
 							console.log("userName is "+$scope.userName);
@@ -803,7 +809,7 @@
 					previousLog : $scope.lastlastlogged,
 					channel : subscription.channel
 			}
-			/*adding new message to database*/
+
 			$http({
 				method: 'POST',
 				url: 'http://localhost:8080/Proj/GetNotificationsServlet',
@@ -812,6 +818,7 @@
 					function(response){
 						console.log("data recieved from GetNotificationsServlet is "+response.data);
 						if (response.data != 0)
+						/*only if the number of notifications is different than 0 we return it*/
 							return response.data;
 					});
 		};
@@ -834,6 +841,7 @@
 					function(response){
 						console.log("data recieved from GetMentionsServlet is "+response.data);
 						if (response.data != 0)
+						/*only if the number of mentions is different than 0 we return it*/
 							return response.data;
 					});
 		};
@@ -856,6 +864,7 @@
 					function(response){
 						console.log("data recieved from GetNotificationsServlet is "+response.data);
 						if (response.data != 0)
+						/*only if the number of mentions is different than 0 we return it*/
 							return response.data;
 					});
 		};
@@ -877,6 +886,7 @@
 			}).then(
 					function(response){
 						console.log("data recieved from GetMentionsServlet is "+response.data);
+						/*only if the number of mentions is different than 0 we return it*/
 						if (response.data != 0)
 							return response.data;
 					});
@@ -910,7 +920,7 @@
 			}).then(
 					function(response){
 						console.log("CreateChannelServlet called, response is "+response.data);
-						if (response.data.trim() != "fail"){
+						if ((typeof response.data === 'string') && (response.data.trim() != "fail")){
 							var subscription = data;
 							$scope.UserPublicChannels.push(subscription);
 						}
@@ -935,13 +945,15 @@
 			}).then(
 					function(response){
 						console.log("SearchPublicChannelsServlet called, response is "+response.data);
-						if (response.data != null){
+						if (response.data != undefined){
 							var channels = response.data;
 							//empty search results array first*/
 							$scope.searchPublicChannels=[];
 							for (var i=0;i<channels.length;i++)
 								$scope.searchPublicChannels.push(channels[i]);
 						$scope.showSearchResults = true;
+						console.log("channels are "+$scope.searchPublicChannels);
+						console.log("showSearchResults is "+$scope.showSearchResults);
 						}
 					});
 		};
@@ -950,7 +962,7 @@
 		$scope.showSearchResults = false;
 			var subscriptionInfo = {
 					channel : channelName,
-					user : $scope.userName
+					user : $scope.userNickname
 			}
 			$http({
 				method: 'POST',
@@ -959,7 +971,7 @@
 			}).then(
 					function(response){
 						console.log("PublicChannelSubscribeServlet called, response is "+response.data);
-						if (response.data.trim() != "fail"){
+						if ((typeof response.data === 'string') && (response.data.trim() != "fail")){
 							var channel = response.data;
 							$scope.searchPublicChannels.push(channel);
 							$scope.searchPublicChannels[$scope.searchPublicChannels.length-1].setAttribute(mentions,0);

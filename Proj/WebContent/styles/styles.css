@@ -1,3 +1,21 @@
+
+/*table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,td {
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even){background-color: #f2f2f2}
+
+th {
+  background-color: #4CAF50;
+  color:white;
+}*/
+
 #sign-in-btn{
   margin-top: -20px;
   margin-left: 41%;
@@ -42,6 +60,21 @@
 #createChannelTitle{
   color: coral;
 }
+
+.nav>li:hover, .nav>li:focus {
+  text-decoration: none;
+  background-color: #560000;
+  color:white;
+}
+
+#tableContainer #myTable{
+  width: 75% !important;
+  position: fixed !important;
+  left: 20% !important;
+  background-color: goldenrod !important;
+  text-align: center !important;
+}
+
 #channel_create_btn{
   margin-left: 100px;
 }
@@ -133,13 +166,20 @@ color: coral;
   z-index: 100;
   /*display: inline-block;*/
 }
+
 h6{
   color: coral;
 }
 
-#public-channels-list,#private-channels-list{
+#public-channels-list, #private-channels-list{
   list-style-type: none;
 }
+
+#public_channel_search_results{
+  position: fixed;
+  left: 28%;
+}
+
 body{
   background-color: #e96;
 }

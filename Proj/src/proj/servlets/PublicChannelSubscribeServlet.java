@@ -93,7 +93,7 @@ public class PublicChannelSubscribeServlet extends HttpServlet {
     		response.sendError(500);//internal server error
 		}
 	
-		Subscription newSubscription = new Subscription(user,channel,proj.models.Type.PUBLIC);
+		Subscription newSubscription = new Subscription(user,channel,"public");
 		//convert from subscription to json
 		String channelJsonresult = gson.toJson(newSubscription, Subscription.class);
 

@@ -98,10 +98,9 @@ public class GetNextTenThreadsDownServlet extends HttpServlet {
 			
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
-				if (rs.getString(4).equals("public"))
-				sub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),proj.models.Type.PUBLIC);
-				else
-					sub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),proj.models.Type.PRIVATE);
+
+				sub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getString(4));
+
 			}
 			dateSubscribed = sub.getDate();
 			rs.close();

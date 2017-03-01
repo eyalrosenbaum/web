@@ -11,20 +11,24 @@ public class Subscription {
 	
 
 	//constructor to create new subscription of user to channel
-	public Subscription(String username, String channel,Type type) {
+	public Subscription(String username, String channel,String type) {
 		super();
 		this.username = username;
 		this.channel = channel;
-		this.type = type;
+		if (type.equals("public"))
+			this.type = proj.models.Type.PUBLIC;
+		else this.type = proj.models.Type.PRIVATE;
 	}
 
 	//constructor to extract subscription data from table
-	public Subscription(int id, String username, String channel,Type type) {
+	public Subscription(int id, String username, String channel,String type) {
 		super();
 		this.id = id;
 		this.username = username;
 		this.channel = channel;
-		this.type = type;
+		if (type.equals("public"))
+			this.type = proj.models.Type.PUBLIC;
+		else this.type = proj.models.Type.PRIVATE;
 	}
 
 	public Type getType() {

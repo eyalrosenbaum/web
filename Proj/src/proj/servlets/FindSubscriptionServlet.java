@@ -65,7 +65,7 @@ public class FindSubscriptionServlet extends HttpServlet {
 				while (rs.next()){
 					String type = rs.getString(4);
 					if (type.equals("public"))
-						result.add(new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),proj.models.Type.PUBLIC));
+						result.add(new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getString(4)));
 //					else
 //						result.add(new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),models.Type.PRIVATE));
 				}

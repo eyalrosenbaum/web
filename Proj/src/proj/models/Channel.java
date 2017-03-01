@@ -26,6 +26,14 @@ public abstract class Channel {
 		this.channelCreationTime = channelCreationTime;
 	}
 
+	public Channel(Type channelType, String channelName, String channelCreator) {
+		super();
+		this.channelType = channelType;
+		this.channelName = channelName;
+		this.channelCreator = channelCreator;
+		this.channelCreationTime = new Timestamp(System.currentTimeMillis());
+	}
+
 	public Type getChannelType() {
 		return channelType;
 	}

@@ -94,23 +94,25 @@ public class UnsubscribeServlet extends HttpServlet {
 		writer.println("success");
 		//updating userlist for channelS
 		ArrayList<User> userlist = AppVariables.usersByChannel.get(subscriptionToDelete.getChannel());
-		Iterator itr = userlist.iterator();
-		User userToDelete = null;
-		while(itr.hasNext()){
-			userToDelete = (User) itr.next();
-			if (userToDelete.getUserName().equals(subscriptionToDelete.getUsername()))
-				userlist.remove(userToDelete);
+		if (userlist != null){
+			Iterator itr = userlist.iterator();
+			User userToDelete = null;
+			while(itr.hasNext()){
+				userToDelete = (User) itr.next();
+				if (userToDelete.getUserName().equals(subscriptionToDelete.getUsername()))
+					userlist.remove(userToDelete);
+			}
+			AppVariables.usersByChannel.put(subscriptionToDelete.getChannel(), userlist);
+			userlist = AppVariables.activeUsersByChannel.get(subscriptionToDelete.getChannel());
+			itr = userlist.iterator();
+			userToDelete = null;
+			while(itr.hasNext()){
+				userToDelete = (User) itr.next();
+				if (userToDelete.getUserName().equals(subscriptionToDelete.getUsername()))
+					userlist.remove(userToDelete);
+			}
+			AppVariables.activeUsersByChannel.put(subscriptionToDelete.getChannel(), userlist);
 		}
-		AppVariables.usersByChannel.put(subscriptionToDelete.getChannel(), userlist);
-		userlist = AppVariables.activeUsersByChannel.get(subscriptionToDelete.getChannel());
-		itr = userlist.iterator();
-		userToDelete = null;
-		while(itr.hasNext()){
-			userToDelete = (User) itr.next();
-			if (userToDelete.getUserName().equals(subscriptionToDelete.getUsername()))
-				userlist.remove(userToDelete);
-		}
-		AppVariables.activeUsersByChannel.put(subscriptionToDelete.getChannel(), userlist);
 	}
 	else
 		writer.println("fail");

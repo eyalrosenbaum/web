@@ -83,7 +83,7 @@ public class GetThreadsServlet extends HttpServlet {
 				}
 				rs.close();
 				stmt.close();
-				conn.close();
+			
 			} catch (SQLException e) {
 				getServletContext().log("Error while querying for threads creators", e);
 				response.sendError(500);//internal server error
@@ -104,14 +104,14 @@ public class GetThreadsServlet extends HttpServlet {
 			stmt.setString(2, channelName);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
-				if (rs.getString(4).equals("private"))
-					sub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),proj.models.Type.PRIVATE);
-				else sub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),proj.models.Type.PUBLIC);
+
+					sub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getString(4));
+
 				sub.setDate(rs.getTimestamp(5));
 			}
 			rs.close();
 			stmt.close();
-			conn.close();
+	
 		} catch (SQLException e) {
 			getServletContext().log("Error while querying for messages", e);
 			response.sendError(500);//internal server error
@@ -130,7 +130,7 @@ public class GetThreadsServlet extends HttpServlet {
 				}
 				rs.close();
 				stmt.close();
-				conn.close();
+			
 			} catch (SQLException e) {
 				getServletContext().log("Error while querying for messages", e);
 				response.sendError(500);//internal server error
@@ -146,7 +146,7 @@ public class GetThreadsServlet extends HttpServlet {
 					}
 					rs.close();
 					stmt.close();
-					conn.close();
+				
 				}} catch (SQLException e) {
 					getServletContext().log("Error while querying for threads creators", e);
 					response.sendError(500);//internal server error

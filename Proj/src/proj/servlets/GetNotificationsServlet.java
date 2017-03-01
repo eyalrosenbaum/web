@@ -9,6 +9,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -69,8 +74,22 @@ public class GetNotificationsServlet extends HttpServlet {
 
 		JsonParser parser = new JsonParser();
 		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
-
-		Timestamp previousLog = Timestamp.valueOf(jsonObject.get("previousLog").toString());
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		String s = jsonObject.get("previousLog").toString();
+		System.out.println(s);
+		s = s.replaceAll("\"", "");
+		System.out.println(s);
+		GregorianCalendar datum = new GregorianCalendar();
+		
+		try {
+			datum.setTime(sdf.parse(s));
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		Timestamp previousLog = new Timestamp(datum.getTimeInMillis());
+		
+		
 		String channelName = jsonObject.get("channel").toString();
 
 		//finding number of new notifications in database according to channel name and previouslog

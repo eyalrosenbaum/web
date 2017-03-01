@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import com.google.gson.reflect.TypeToken;
 
+import proj.models.Channel;
 import proj.models.Message;
 import proj.models.PrivateChannel;
 import proj.models.PublicChannel;
@@ -25,6 +26,7 @@ public interface AppConstants {
 	public final String NAME = "name";
 	public final String USERNICKNAME = "usernickname";
 	public final String CHANNELNAME = "channelName";
+	public final Type CHANNELS_COLLECTION = new TypeToken<Collection<Channel>>() {}.getType();
 	public final Type USER_COLLECTION = new TypeToken<Collection<User>>() {}.getType();
 	public final Type SUBSCRIPTION_COLLECTION = new TypeToken<Collection<Subscription>>() {}.getType();
 	public final Type PRIVATE_CHANNELS_COLLECTION = new TypeToken<Collection<PrivateChannel>>() {}.getType();

@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import javax.servlet.ServletException;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -55,6 +57,7 @@ public class CreatePublicChannelServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Gson gson = new Gson();
+		
 		Connection conn = null;
 		try {
 			conn = AppVariables.db.getConnection();
@@ -71,18 +74,23 @@ public class CreatePublicChannelServlet extends HttpServlet {
 			jsonDetails.append(line);
 		}
 		
+		//String json = new GsonBuilder().setDateFormat("yyyy-mm-dd hh:mm:ss").to;
 		JsonParser parser = new JsonParser();
 		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
-		
-		PublicChannel newChannel = gson.fromJson(jsonObject, PublicChannel.class);
+
+		PublicChannel newChannel = gson.fromJson(jsonDetails.toString(), PublicChannel.class);
+		System.out.println(newChannel.getChannelName()+" "+newChannel.getChannelDescription()+" "+newChannel.getChannelCreator());
+		newChannel.setChannelCreationTime(new Timestamp(System.currentTimeMillis()));
 		PreparedStatement stmt;
 			try {
 				stmt = conn.prepareStatement(AppConstants.INSERT_CHANNEL_STMT);
 				stmt.setString(1, newChannel.getChannelName());
-				stmt.setString(2, newChannel.getChannelType().toString());
+				stmt.setString(2, "public");
 				stmt.setString(3, newChannel.getChannelDescription());
 				stmt.setString(4, newChannel.getChannelCreator());
 				stmt.setTimestamp(5, newChannel.getChannelCreationTime());
+				stmt.setString(6, null);
+				stmt.setString(7, null);
 				stmt.executeUpdate();
 				conn.commit();
 				stmt.close();
@@ -99,7 +107,8 @@ public class CreatePublicChannelServlet extends HttpServlet {
 				stmt = conn.prepareStatement(AppConstants.INSERT_SUBSCRIPTIONS);
 				stmt.setString(1, newChannel.getChannelCreator());
 				stmt.setString(2, newChannel.getChannelName());
-				stmt.setString(3, newChannel.getChannelType().toString());
+				stmt.setString(3, "public");
+				stmt.setTimestamp(4, newChannel.getChannelCreationTime());
 				stmt.executeUpdate();
 				conn.commit();
 				stmt.close();
@@ -128,7 +137,7 @@ public class CreatePublicChannelServlet extends HttpServlet {
 				stmt.setString(2, newChannel.getChannelName());
 				ResultSet rs = stmt.executeQuery();
 				while(rs.next())
-					newsub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),proj.models.Type.PUBLIC);
+					newsub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getString(4));
 				stmt.close();
 			} catch (SQLException e) {
 				getServletContext().log("Error while fetching user", e);

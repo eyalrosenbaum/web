@@ -11,7 +11,18 @@ public class PublicChannel extends Channel {
 		super(channelType, channelName, channelCreator, channelCreationTime);
 		this.channelDescription = channelDescription;
 	}
+	
+	public PublicChannel(String channelName, String channelCreator, String channelDescription,
+			Timestamp channelCreationTime) {
+		super(proj.models.Type.PUBLIC, channelName, channelCreator, channelCreationTime);
+		this.channelDescription = channelDescription;
+	}
 
+	public PublicChannel(String channelName, String channelCreator, String channelDescription) {
+		super(proj.models.Type.PUBLIC, channelName, channelCreator);
+		this.channelDescription = channelDescription;
+	}
+	
 	public String getChannelDescription() {
 		return channelDescription;
 	}

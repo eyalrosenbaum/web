@@ -72,7 +72,7 @@ public class Subscriptions extends HttpServlet {
 		
 		Gson gson = new Gson();
 		String JsonResult = gson.toJson(subscriptionResult,AppConstants.SUBSCRIPTION_COLLECTION);
-		System.out.println(JsonResult);
+		System.out.println("subscriptions "+JsonResult);
 	}
 
 	/**

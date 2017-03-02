@@ -71,7 +71,7 @@ public class GetNotificationsServlet extends HttpServlet {
 		while ((line = br.readLine()) !=null){
 			jsonDetails.append(line);
 		}
-
+		//parsing details sent from client
 		JsonParser parser = new JsonParser();
 		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -91,7 +91,8 @@ public class GetNotificationsServlet extends HttpServlet {
 		
 		
 		String channelName = jsonObject.get("channel").toString();
-
+		channelName = channelName.replaceAll("\"", "");
+		
 		//finding number of new notifications in database according to channel name and previouslog
 		PreparedStatement stmt;
 		int notifications = 0;
@@ -101,6 +102,8 @@ public class GetNotificationsServlet extends HttpServlet {
 			stmt.setTimestamp(2,previousLog);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
+				/*for each message sent in the channel after the last time the user has logged
+				(on his leave of site) we add 1 to the notifications*/
 				notifications++;
 			}
 			rs.close();

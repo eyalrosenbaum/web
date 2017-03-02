@@ -10,7 +10,10 @@ public class User {
 	private String photoURL;
 	private boolean islogged;
 	private Timestamp lastlogged;
+	private Timestamp lastlastlogged;
 	
+	
+
 	//constructor for creating new user
 	public User(String userName, String password, String userNickname, String userDescription, String photoURL) {
 		super();
@@ -96,7 +99,13 @@ public class User {
 		this.lastlogged = lastlogged;
 	}
 
-	
+	public Timestamp getLastlastlogged() {
+		return lastlastlogged;
+	}
+
+	public void setLastlastlogged(Timestamp lastlastlogged) {
+		this.lastlastlogged = lastlastlogged;
+	}	
 
 	
 }

@@ -73,8 +73,9 @@ public class FindPrivateChannelsServlet extends HttpServlet {
 		Collection<PrivateChannel> result = new ArrayList<PrivateChannel>();
 			try {
 				stmt = conn.prepareStatement(AppConstants.SELECT_PRIVATE_CHANNELS_BY_NICKNAME);
-				stmt.setString(1, nicknameValue);
+				stmt.setString(1, "private");
 				stmt.setString(2, nicknameValue);
+				stmt.setString(3, nicknameValue);
 				
 				ResultSet rs = stmt.executeQuery();
 				while (rs.next()){

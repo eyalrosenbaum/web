@@ -68,13 +68,15 @@ public class RemoveUserFromChannelListServlet extends HttpServlet {
 
 		String channelName = jsonObject.get("name").toString();
 		ArrayList<User> list = AppVariables.activeUsersByChannel.get(channelName);
-		Iterator itr = list.iterator();
-		while (itr.hasNext()){
-			User user = (User) itr.next();
-			if (user.getUserNickname().equals(nickname))
-				list.remove(user);
+		if (list!=null){
+			Iterator itr = list.iterator();
+			while (itr.hasNext()){
+				User user = (User) itr.next();
+				if (user.getUserNickname().equals(nickname))
+					list.remove(user);
+			}
+			AppVariables.activeUsersByChannel.put(channelName, list);
 		}
-		AppVariables.activeUsersByChannel.put(channelName, list);
 		PrintWriter writer = response.getWriter();
 		writer.println("user deleted from channels active list");
 		writer.close();

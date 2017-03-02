@@ -16,6 +16,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -56,6 +57,7 @@ public class PublicChannelSubscribeServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Gson gson = new Gson();
 		Connection conn = null;
+		HttpSession session = request.getSession();
 		try {
 			conn = AppVariables.db.getConnection();
 		} catch (SQLException e) {
@@ -74,54 +76,82 @@ public class PublicChannelSubscribeServlet extends HttpServlet {
 		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
 		
 		String channel = jsonObject.get("channel").toString();
+		channel = channel.replaceAll("\"", "");
 		String user = jsonObject.get("user").toString();
+		user = user.replaceAll("\"", "");
 		Timestamp time = new Timestamp(System.currentTimeMillis());
-
+		String username = session.getAttribute(AppConstants.USERNAME).toString(); 
+		boolean subscribedAlready = false;
+		Subscription newSubscription = null;
+		
+		/*first check that subscription does not already exist*/
 		PreparedStatement stmt;
 		try {
-			stmt = conn.prepareStatement(AppConstants.INSERT_SUBSCRIPTIONS);
-			stmt.setString(1, user);
+			stmt = conn.prepareStatement(AppConstants.SELECT_SUBSCRIPTIONS_BY_USERNAME_AND_CHANNEL);
+			stmt.setString(1, username);
 			stmt.setString(2, channel);
-			stmt.setString(3, "public");
-			stmt.setTimestamp(4, time);
-			stmt.executeUpdate();
-			conn.commit();
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next())
+				subscribedAlready = true;
 			stmt.close();
-			conn.close();
+			
 		} catch (SQLException e) {
 			getServletContext().log("Error while inserting new channel", e);
     		response.sendError(500);//internal server error
 		}
-	
-		Subscription newSubscription = new Subscription(user,channel,"public");
-		//convert from subscription to json
-		String channelJsonresult = gson.toJson(newSubscription, Subscription.class);
-
+		if (!subscribedAlready){
+			try {
+				stmt = conn.prepareStatement(AppConstants.INSERT_SUBSCRIPTIONS);
+				stmt.setString(1, username);
+				stmt.setString(2, channel);
+				stmt.setString(3, "public");
+				stmt.setTimestamp(4, time);
+				stmt.executeUpdate();
+				conn.commit();
+				stmt.close();
+				
+			} catch (SQLException e) {
+				getServletContext().log("Error while inserting new channel", e);
+	    		response.sendError(500);//internal server error
+			}
+		
+			newSubscription = new Subscription(username,channel,"public");
+			newSubscription.setDate(time);
+			//convert from subscription to json
+			
+		}
 	PrintWriter writer = response.getWriter();
-	if (checkSuccessful(newSubscription)){
+	if ((newSubscription != null)&&(checkSuccessful(newSubscription))){
+		String channelJsonresult = gson.toJson(newSubscription, Subscription.class);
 		writer.println(channelJsonresult);
+		writer.close();
 		//updating userlist for channel in hashmap
 		ArrayList<User> userList = AppVariables.usersByChannel.get(channel);
-		try {
-			stmt = conn.prepareStatement(AppConstants.SELECT_USER_BY_USERNAME_STMT);
-			stmt.setString(1, user);
-			ResultSet rs = stmt.executeQuery();
-			while(rs.next()){
-				userList.add(new User(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
-						rs.getBoolean(6), rs.getTimestamp(7)));
+		if (userList == null)
+			userList = new ArrayList<User>();
+		else{
+			try {
+				stmt = conn.prepareStatement(AppConstants.SELECT_USER_BY_USERNAME_STMT);
+				stmt.setString(1, username);
+				ResultSet rs = stmt.executeQuery();
+				while(rs.next()){
+					userList.add(new User(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
+							rs.getBoolean(6), rs.getTimestamp(7)));
+				}
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				getServletContext().log("Error while inserting new channel", e);
+	    		response.sendError(500);//internal server error
 			}
-			stmt.close();
-			conn.close();
-		} catch (SQLException e) {
-			getServletContext().log("Error while inserting new channel", e);
-    		response.sendError(500);//internal server error
+			AppVariables.usersByChannel.put(channel, userList);
 		}
-		AppVariables.usersByChannel.put(channel, userList);
 	}
 	else
 		writer.println("fail");
-	writer.close();
+		writer.close();
 	}
+	
 	protected boolean checkSuccessful(Subscription subscription) {
 		Connection conn = null;
 		try {

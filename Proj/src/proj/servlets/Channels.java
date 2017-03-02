@@ -62,7 +62,7 @@ public class Channels extends HttpServlet {
 					channelResult.add(new PublicChannel(proj.models.Type.PUBLIC,rs.getString(1),rs.getString(5),rs.getString(3),rs.getTimestamp(5)));
 				}
 				else{
-					channelResult.add(new PrivateChannel(proj.models.Type.PUBLIC,rs.getString(1),rs.getString(5),rs.getTimestamp(5)));
+					channelResult.add(new PrivateChannel(proj.models.Type.PRIVATE,rs.getString(1),rs.getString(5),rs.getTimestamp(5)));
 				}
 				
 			}
@@ -76,7 +76,8 @@ public class Channels extends HttpServlet {
 		
 		Gson gson = new Gson();
 		String JsonResult = gson.toJson(channelResult,AppConstants.CHANNELS_COLLECTION);
-		System.out.println(JsonResult);
+		System.out.println("channels :" + JsonResult);
+		
 
 	}
 

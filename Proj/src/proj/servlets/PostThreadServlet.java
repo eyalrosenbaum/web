@@ -8,6 +8,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,6 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import porj.helpers.AppConstants;
 import porj.helpers.AppVariables;
@@ -64,22 +69,51 @@ public class PostThreadServlet extends HttpServlet {
 		while ((line = br.readLine()) !=null){
 			jsonDetails.append(line);
 		}
-		Message thread = gson.fromJson(jsonDetails.toString(), Message.class);
+		JsonParser parser = new JsonParser();
+		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
+		/*extracting data of message from json - cant use gson because of timestamp*/
+		String author = jsonObject.get("author").toString();
+		author = author.replaceAll("\"", "");
+		String channel = jsonObject.get("channel").toString();
+		channel = channel.replaceAll("\"", "");
+		String content = jsonObject.get("content").toString();
+		content = content.replaceAll("\"", "");
+		Boolean isThread = Boolean.parseBoolean(jsonObject.get("isThread").toString());
+		Integer isReplyTo = Integer.parseInt(jsonObject.get("isReplyTo").toString());
+		Integer threadID = Integer.parseInt(jsonObject.get("threadID").toString());
+		long s = Long.parseLong(jsonObject.get("lastUpdate").toString());
+		Date dater = new Date(s);
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(dater);
+		cal.set(Calendar.MILLISECOND, 0);
+		Timestamp lastUpdate = new Timestamp(cal.getTimeInMillis());
+		s = Long.parseLong(jsonObject.get("date").toString());
+		dater = new Date(s);
+		cal = Calendar.getInstance();
+		cal.setTime(dater);
+		cal.set(Calendar.MILLISECOND, 0);
+		Timestamp date = new Timestamp(cal.getTimeInMillis());
+		
+		
+		Message thread = new Message(author,channel,content,isThread,isReplyTo,threadID,date);
+		thread.setLastUpdate(lastUpdate);
+		
+		/*inserting thread to databse - thread id is not yet known*/
 		PreparedStatement stmt;
 		try {
 			stmt = conn.prepareStatement(AppConstants.INSERT_MESSAGE_STMT);
 			stmt.setString(1, thread.getAuthor());
 			stmt.setString(2, thread.getChannel());
 			stmt.setString(3, thread.getContent());
-			stmt.setBoolean(3, thread.isThread());
-			stmt.setInt(3, thread.getIsReplyTo());
-			stmt.setInt(3, thread.getThreadID());
-			stmt.setTimestamp(3, thread.getLastUpdate());
-			stmt.setTimestamp(3, thread.getDate());
+			stmt.setBoolean(4, thread.isThread());
+			stmt.setInt(5, thread.getIsReplyTo());
+			stmt.setInt(6, thread.getThreadID());
+			stmt.setTimestamp(7, thread.getLastUpdate());
+			stmt.setTimestamp(8, thread.getDate());
 			stmt.executeUpdate();
 			conn.commit();
 			stmt.close();
-			conn.close();
+			
 		} catch (SQLException e) {
 			getServletContext().log("Error while inserting new thread", e);
 			response.sendError(500);//internal server error
@@ -88,7 +122,10 @@ public class PostThreadServlet extends HttpServlet {
 
 		PrintWriter writer = response.getWriter();
 		if (checkSuccessful(thread)){
-			writer.println("success");
+			System.out.println("a message was successfuly entered to database");
+			//convert from message collection to json
+			String JsonResult = gson.toJson(thread,Message.class);
+			writer.println(JsonResult);
 			int id = 0;
 			/*update threadid to be the thread's id*/
 			try {
@@ -100,7 +137,7 @@ public class PostThreadServlet extends HttpServlet {
 
 					id = rs.getInt(1);
 					stmt.close();
-					conn.close();
+					
 				} }catch (SQLException e) {
 					getServletContext().log("Error while looking for the new message", e);
 				}

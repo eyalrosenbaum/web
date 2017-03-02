@@ -19,14 +19,14 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import porj.helpers.AppConstants;
 import porj.helpers.AppVariables;
 
 
-@ServerEndpoint(
-		value = "/chat",
-		decoders = MsgDecoder.class,
-		encoders = MsgEncoder.class)
+@ServerEndpoint("/chat/{nickname}")
 public class ChatEndPoint{
 	
 	//tracks all active chat users
@@ -45,17 +45,8 @@ public class ChatEndPoint{
     	System.out.println("websocking login called");
     		if (session.isOpen()) {
     			//add new user to managed chat sessions
-    	    	chatUsers.put(session,nickname);
-    	    	Connection conn = AppVariables.db.getConnection();
-    	    	Timestamp time = new Timestamp(System.currentTimeMillis());
-    			PreparedStatement stmt;
-    			stmt = conn.prepareStatement(AppConstants.UPDATE_LOGGED_USER_STMT);
-    			stmt.setTimestamp(1, time);
-    			stmt.setString(1, nickname);
-    			stmt.executeUpdate();
-    			conn.commit();
-    			stmt.close();
-    			conn.close();
+    			chatUsers.put(session,nickname);
+    	    	
     		}
     }
     
@@ -72,36 +63,13 @@ public class ChatEndPoint{
     @OnMessage
     public void deliverChatMessege(Session session, String msg) throws IOException, DecodeException, SQLException{
     	try {
+    		System.out.println("deliverChatMessege  called");
     		if (session.isOpen()) {
-    			//deliver message only to users who are active in this channel
-    			String user = chatUsers.get(session);
-    			User sender = null;
-    			Message message = decoder.decode(msg);
-    			message.setDate(new Timestamp(System.currentTimeMillis()));
-    			message.setLastUpdate(message.getDate());
-    			ArrayList<User> channelUsers = AppVariables.usersByChannel.get(message.getChannel());
-    			//now we will send the message to all users in the channel
-    			for (User channelUser : channelUsers){
-    				doNotify(channelUser.getUserNickname(), msg, null);
-    			}
-    			//insert message into database
-    			Connection conn = AppVariables.db.getConnection();
-    			PreparedStatement stmt;
-    			//stmt = conn.prepareStatement(AppConstants.INSERT_MESSAGE_STMT);
-    			stmt = conn.prepareStatement(AppConstants.INSERT_MESSAGE_STMT);
-    			stmt.setString(1, message.getAuthor());
-    			stmt.setString(2, message.getChannel());
-    			stmt.setString(3, message.getContent());
-    			stmt.setBoolean(4, message.isThread());
-    			stmt.setInt(5, message.getIsReplyTo());
-    			stmt.setInt(6, message.getThreadID());
-    			stmt.setTimestamp(7, message.getLastUpdate());
-    			stmt.setTimestamp(8, message.getDate());
-    			stmt.executeUpdate();
-    			conn.commit();
-    			stmt.close();
-    			conn.close();
-
+    			JsonParser parser = new JsonParser();
+    			JsonObject jsonObject = parser.parse(msg).getAsJsonObject();
+    			String author = jsonObject.get("author").toString();
+    			author = author.replaceAll("\"", "");
+    			doNotify(author, msg, null);
     		}
 
     	} catch (IOException e) {
@@ -121,17 +89,7 @@ public class ChatEndPoint{
     //	try {
     	System.out.println("websocking logout called");
     		String user = chatUsers.remove(session);//fake user just for removal
-    		Connection conn = AppVariables.db.getConnection();
-			PreparedStatement stmt;
-			Timestamp time = new Timestamp(System.currentTimeMillis());
-			//stmt = conn.prepareStatement(AppConstants.INSERT_MESSAGE_STMT);
-			stmt = conn.prepareStatement(AppConstants.UPDATE_UNLOGGED_USER_STMT);
-			stmt.setTimestamp(1, time);
-			stmt.setString(2, user);
-			stmt.executeUpdate();
-			conn.commit();
-			stmt.close();
-			conn.close();
+    		
     		
     }
 
@@ -139,11 +97,11 @@ public class ChatEndPoint{
      * Helper method for message delivery to chat participants. skip parameter is used to avoid delivering a message 
      * to a certain client (e.g., one that has just left) 
      */
-    private void doNotify(String usernickname, String message, Session skip) throws IOException{
-    	for (Entry<Session,String> user : chatUsers.entrySet()){
+    private void doNotify(String author, String message, Session skip) throws IOException{
+    	for (Entry<Session,String> usernickname : chatUsers.entrySet()){
     		//send only to members of channel
-    		if (user.getValue().equals(usernickname)){
-	    		Session session = user.getKey();
+    		if (usernickname.getValue().equals(author)){
+	    		Session session = usernickname.getKey();
 	    		if (!session.equals(skip) && session.isOpen()){
 	    			session.getBasicRemote().sendText(message);
 	    		}

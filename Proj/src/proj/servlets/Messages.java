@@ -70,7 +70,7 @@ public class Messages extends HttpServlet {
 		
 		Gson gson = new Gson();
 		String JsonResult = gson.toJson(messagesResult,AppConstants.MESSAGE_COLLECTION);
-		System.out.println(JsonResult);
+		System.out.println("messages " +JsonResult);
 	}
 
 	/**

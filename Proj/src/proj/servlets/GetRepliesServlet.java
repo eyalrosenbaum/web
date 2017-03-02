@@ -110,12 +110,19 @@ public class GetRepliesServlet extends HttpServlet {
 				getServletContext().log("Error while querying for threads creators", e);
 				response.sendError(500);//internal server error
 			}
+		if (replies.isEmpty()){
+			PrintWriter writer = response.getWriter();
+			writer.println("fail");
+			writer.close();
+		}
+		else{
 		//convert from subscriptions collection to json
 		String channelThreadsJsonResult = gson.toJson(replies, AppConstants.MESSAGE_COLLECTION);
 
 		PrintWriter writer = response.getWriter();
 		writer.println(channelThreadsJsonResult);
 		writer.close();
+		}
 	}
 
 	/**

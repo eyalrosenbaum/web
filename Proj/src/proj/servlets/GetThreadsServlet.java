@@ -162,7 +162,7 @@ public class GetThreadsServlet extends HttpServlet {
 					}
 					rs.close();
 					stmt.close();
-					conn.close();
+					
 				}} catch (SQLException e) {
 					getServletContext().log("Error while querying for thread replies", e);
 					response.sendError(500);//internal server error
@@ -174,6 +174,12 @@ public class GetThreadsServlet extends HttpServlet {
 		PrintWriter writer = response.getWriter();
 		writer.println(channelThreadsJsonResult);
 		writer.close();
+		try {
+			conn.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		}
 	}
 

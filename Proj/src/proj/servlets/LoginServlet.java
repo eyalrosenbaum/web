@@ -80,6 +80,7 @@ public class LoginServlet extends HttpServlet {
 			System.out.println("passwordValue is "+passwordValue);
 			passwordValue = passwordValue.replaceAll("\"", "");
 			System.out.println("passwordValue is "+passwordValue);
+			Timestamp time = null;
 			if ((userNameValue !=null) && (passwordValue != null)){
 				System.out.println("before");
 				PreparedStatement stmt;
@@ -91,7 +92,6 @@ public class LoginServlet extends HttpServlet {
 					System.out.println(stmt.toString());
 					ResultSet rs = stmt.executeQuery();
 					System.out.println("result?");
-					Timestamp time = null;
 					//if there are results than user is registered to site and it is ok to proceed
 					if (rs.next()){
 						registered = true;
@@ -125,39 +125,42 @@ public class LoginServlet extends HttpServlet {
 				}
 			}
 			
-			/*new*/
-			try {
-				PreparedStatement stmt = conn.prepareStatement(AppConstants.SELECT_ALL_USERS);
-				ArrayList<String> names = new ArrayList<String>();
-				ResultSet rs = stmt.executeQuery();
 			
-				while (rs.next()){
-					names.add(rs.getString(1)+" "+rs.getString(2));
-				}
-				rs.close();
-				stmt.close();
-				/*endnew*/
-				for(String name : names)
-				System.out.println(name);
-			}catch (SQLException e) {
-				getServletContext().log("Error while querying for users", e);
-				response.sendError(500);//internal server error
-			}
 			conn.close();
 			//send users details to client
 			Gson gson = new Gson();
 			//convert from users collection to json
 			String userJsonresult;
 			System.out.println(userResult);
+			PrintWriter writer = response.getWriter();
 			if (userResult != null){
 				userJsonresult = gson.toJson(userResult, User.class);
-				System.out.println(userJsonresult);
-				PrintWriter writer = response.getWriter();
+				
 				writer.println(userJsonresult);
 				writer.close();
 				//setting session attribute - username for future actions
 				session.setAttribute(AppConstants.USERNAME, userResult.getUserName());
+				System.out.println("attribute set "+ session.getAttribute(AppConstants.USERNAME).toString());
 				session.setAttribute(AppConstants.USERNICKNAME, userResult.getUserNickname());
+				System.out.println("attribute set "+ session.getAttribute(AppConstants.USERNICKNAME).toString());
+				if (userResult.getUserDescription()!=null)
+					session.setAttribute(AppConstants.DESCRIPTION, userResult.getUserDescription());
+				else session.setAttribute(AppConstants.DESCRIPTION, "");
+				System.out.println("attribute set "+ session.getAttribute(AppConstants.DESCRIPTION).toString());
+				if (userResult.getPhotoURL()!=null)
+					session.setAttribute(AppConstants.PHOTOURL, userResult.getPhotoURL());
+				else session.setAttribute(AppConstants.PHOTOURL, "");
+					System.out.println("attribute set "+ session.getAttribute(AppConstants.PHOTOURL).toString());
+				session.setAttribute(AppConstants.LASTLOG, time);
+					System.out.println("attribute set "+ session.getAttribute(AppConstants.LASTLOG).toString());
+				session.setAttribute(AppConstants.LASTLASTLOG, userResult.getLastlogged());
+				System.out.println("attribute set "+ session.getAttribute(AppConstants.LASTLASTLOG).toString());
+				
+			}
+			
+			else{
+				writer.println("fail");
+				writer.close();
 			}
 
 		} catch (SQLException e) {

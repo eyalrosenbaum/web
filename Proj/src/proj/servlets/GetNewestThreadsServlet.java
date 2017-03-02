@@ -32,7 +32,7 @@ import proj.models.Subscription;
 /**
  * Servlet implementation class GetNewestThreadsServlet
  */
-@WebServlet("/GetNewestThreadsServlet")
+@WebServlet("/GetNewestThreadsServlet/channelName/*")
 public class GetNewestThreadsServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -57,16 +57,6 @@ public class GetNewestThreadsServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 
-		//reading channel details from the request
-		BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
-		StringBuilder jsonDetails =new StringBuilder();
-		String line;
-		while ((line = br.readLine()) !=null){
-			jsonDetails.append(line);
-		}
-
-		JsonParser parser = new JsonParser();
-		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
 		String channelName = null;
 		String uri = request.getRequestURI();
 		if (uri.indexOf(AppConstants.CHANNELNAME)!=-1)
@@ -74,7 +64,7 @@ public class GetNewestThreadsServlet extends HttpServlet {
 		if (channelName!=null)
 			channelName.replaceAll("\\%20", " ");
 		HttpSession session = request.getSession();
-		
+		System.out.println("get newest threads servlets, channel name is "+channelName);
 		String username = session.getAttribute(AppConstants.USERNAME).toString();
 		Timestamp dateSubscribed = null;
 		Subscription sub = null;
@@ -90,12 +80,12 @@ public class GetNewestThreadsServlet extends HttpServlet {
 			while (rs.next()){
 
 				sub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getString(4));
-
+				System.out.println("there were results to SELECT_SUBSCRIPTIONS_BY_USERNAME_AND_CHANNEL");
 			}
 			dateSubscribed = sub.getDate();
 			rs.close();
 			stmt.close();
-			conn.close();
+		
 		} catch (SQLException e) {
 			getServletContext().log("Error while querying for messages", e);
 			response.sendError(500);//internal server error
@@ -110,10 +100,11 @@ public class GetNewestThreadsServlet extends HttpServlet {
 			while (rs.next()){
 				channelThreads.add(new Message(rs.getInt(1), rs.getString(2), rs.getString(3),rs.getString(4), rs.getBoolean(5), rs.getInt(6), rs.getInt(7),
 						rs.getTimestamp(8), rs.getTimestamp(9)));
+				System.out.println("there were results to select_threads_by_channel");
 			}
 			rs.close();
 			stmt.close();
-			conn.close();
+			
 		} catch (SQLException e) {
 			getServletContext().log("Error while querying for messages", e);
 			response.sendError(500);//internal server error
@@ -126,10 +117,11 @@ public class GetNewestThreadsServlet extends HttpServlet {
 				ResultSet rs = stmt.executeQuery();
 				while (rs.next()){
 					thread.setAuthorPhotoUrl(rs.getString(5));
+					System.out.println("there were results to SELECT_USER_BY_NICKNAME_STMT");
 				}
 				rs.close();
 				stmt.close();
-				conn.close();
+			
 			}} catch (SQLException e) {
 				getServletContext().log("Error while querying for threads creators", e);
 				response.sendError(500);//internal server error
@@ -142,6 +134,7 @@ public class GetNewestThreadsServlet extends HttpServlet {
 				ResultSet rs = stmt.executeQuery();
 				while (rs.next()){
 					thread.addtoumberOfReplies();
+					System.out.println("there were results to SELECT_MESSAGES_BY_REPLYTO_STMT");
 				}
 				rs.close();
 				stmt.close();
@@ -150,6 +143,7 @@ public class GetNewestThreadsServlet extends HttpServlet {
 				getServletContext().log("Error while querying for threads creators", e);
 				response.sendError(500);//internal server error
 			}
+		System.out.println("there should be "+channelThreads.size()+" threads");
 		//convert from subscriptions collection to json
 		String channelThreadsJsonResult = gson.toJson(channelThreads, AppConstants.MESSAGE_COLLECTION);
 

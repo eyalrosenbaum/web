@@ -16,6 +16,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -57,6 +58,18 @@ public class SearchPublicChannelsServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Gson gson = new Gson();
 		Connection conn = null;
+		HttpSession session = request.getSession();
+
+		System.out.println("attribute set "+ session.getAttribute(AppConstants.USERNAME).toString());
+
+		System.out.println("attribute set "+ session.getAttribute(AppConstants.USERNICKNAME).toString());
+
+		System.out.println("attribute set "+ session.getAttribute(AppConstants.DESCRIPTION).toString());
+
+		System.out.println("attribute set "+ session.getAttribute(AppConstants.PHOTOURL).toString());
+	
+		System.out.println("attribute set "+ session.getAttribute(AppConstants.LASTLOG).toString());
+		
 		try {
 			conn = AppVariables.db.getConnection();
 		} catch (SQLException e) {
@@ -86,19 +99,25 @@ public class SearchPublicChannelsServlet extends HttpServlet {
 				PreparedStatement stmt;
 				try {
 					stmt = conn.prepareStatement(AppConstants.SELECT_CHANNEL_BY_NAME_AND_TYPE);
-					stmt.setString(1, value);
-					stmt.setString(2, "PUBLIC");
-					System.out.println(stmt);
+					stmt.setString(1, "%"+value+"%");
+					
 					System.out.println("lalalala");
 					ResultSet rs = stmt.executeQuery();
 					//if there are results than user is registered to site and it is ok to proceed
-					if (rs.next()){
-						PublicChannel channelToAdd = new PublicChannel(proj.models.Type.PUBLIC,rs.getString(1),rs.getString(4),rs.getString(3),rs.getTimestamp(5));
-						channelToAdd.setNumberOfUsers(AppVariables.activeUsersByChannel.get(channelToAdd.getChannelName()).size());
-						result.add(channelToAdd);
-						System.out.println("lalalala");
+					while (rs.next()){
+						PublicChannel channelToAdd = null;
+						if (rs.getString(2).equals("public")){
+						 channelToAdd = new PublicChannel(proj.models.Type.PUBLIC,rs.getString(1),rs.getString(4),rs.getString(3),rs.getTimestamp(5));
+						 /*getting number of active users in the channel*/
+						 if (AppVariables.activeUsersByChannel.get(channelToAdd.getChannelName()) != null)
+							 channelToAdd.setNumberOfUsers(AppVariables.activeUsersByChannel.get(channelToAdd.getChannelName()).size());
+						 else {
+							 channelToAdd.setNumberOfUsers(0);
+						 }
+						 result.add(channelToAdd);
+						System.out.println("result is "+result);
+						}
 					}
-					else System.out.println("lululu");
 					rs.close();
 					stmt.close();
 
@@ -129,16 +148,16 @@ public class SearchPublicChannelsServlet extends HttpServlet {
 			
 			if (value !=null){
 				PreparedStatement stmt;
-				User userResult = null;
+				ArrayList<User> userResult = new ArrayList<User>();
 				try {
-					stmt = conn.prepareStatement(AppConstants.SELECT_USER_BY_NICKNAME_STMT);
-					stmt.setString(1, value);
+					stmt = conn.prepareStatement(AppConstants.SELECT_USER_BY_NICKNAME_PART_STMT);
+					stmt.setString(1, "%"+value+"%");
 
 					ResultSet rs = stmt.executeQuery();
 					//if there are results than user is registered to site and it is ok to proceed
-					if (rs.next()){
-						userResult = new User(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
-								rs.getBoolean(6), rs.getTimestamp(7));
+					while (rs.next()){
+						userResult.add(new User(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
+								rs.getBoolean(6), rs.getTimestamp(7)));
 					}
 					rs.close();
 					stmt.close();
@@ -147,39 +166,50 @@ public class SearchPublicChannelsServlet extends HttpServlet {
 					getServletContext().log("Error while querying for users", e);
 					response.sendError(500);//internal server error
 				}
-				String username = userResult.getUserName();
+				ArrayList<String> username = new ArrayList<String>();
+				for (User user : userResult)
+					username.add(user.getUserName());
 				/*getting channels names from subscription table*/
 				ArrayList<Subscription> list = new ArrayList<Subscription>();
-				try {
-					stmt = conn.prepareStatement(AppConstants.SELECT_SUBSCRIPTIONS_BY_USERNAME);
-					stmt.setString(1, username);
-
-					ResultSet rs = stmt.executeQuery();
-					//if there are results than user is registered to site and it is ok to proceed
-					if (rs.next()){
-						list.add(new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getString(4)));
+				for (String name : username){
+					try {
+						stmt = conn.prepareStatement(AppConstants.SELECT_SUBSCRIPTIONS_BY_USERNAME);
+						stmt.setString(1, name);
+	
+						ResultSet rs = stmt.executeQuery();
+						//if there are results than user is registered to site and it is ok to proceed
+						while (rs.next()){
+							list.add(new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getString(4)));
+						}
+						rs.close();
+						stmt.close();
+	
+					} catch (SQLException e) {
+						getServletContext().log("Error while querying for users", e);
+						response.sendError(500);//internal server error
 					}
-					rs.close();
-					stmt.close();
-
-				} catch (SQLException e) {
-					getServletContext().log("Error while querying for users", e);
-					response.sendError(500);//internal server error
 				}
 				/*getting channels details according to channels names from channels table*/
 				for (Subscription sub : list){
 					try {
 						stmt = conn.prepareStatement(AppConstants.SELECT_CHANNEL_BY_NAME_AND_TYPE);
 						stmt.setString(1, sub.getChannel());
-						stmt.setString(2, "PUBLIC");
 
 						ResultSet rs = stmt.executeQuery();
 						//if there are results than user is registered to site and it is ok to proceed
 						if (rs.next()){
-							PublicChannel channelToAdd = new PublicChannel(proj.models.Type.PUBLIC,rs.getString(1),rs.getString(4),rs.getString(3),rs.getTimestamp(5));
-							channelToAdd.setNumberOfUsers(AppVariables.activeUsersByChannel.get(channelToAdd.getChannelName()).size());
-							result.add(channelToAdd);
+							PublicChannel channelToAdd = null;
+							if (rs.getString(2).equals("public")){
+								channelToAdd = new PublicChannel(proj.models.Type.PUBLIC,rs.getString(1),rs.getString(4),rs.getString(3),rs.getTimestamp(5));
+								if (AppVariables.activeUsersByChannel.get(channelToAdd.getChannelName()) != null)
+									channelToAdd.setNumberOfUsers(AppVariables.activeUsersByChannel.get(channelToAdd.getChannelName()).size());
+								else channelToAdd.setNumberOfUsers(0);
+								result.add(channelToAdd);
+								System.out.println("result is "+result);
+							}
+						else System.out.println("lalalala");
 						}
+							
 						rs.close();
 						stmt.close(); 
 
@@ -195,14 +225,15 @@ public class SearchPublicChannelsServlet extends HttpServlet {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			//send channels details to client
-			//convert from channel collection to json
-			String channelsJsonresult = gson.toJson(result, AppConstants.PUBLIC_CHANNELS_COLLECTION);
-			System.out.println(channelsJsonresult);
-			PrintWriter writer = response.getWriter();
-			writer.println(channelsJsonresult);
-			writer.close();
-	}
+		}
+		//send channels details to client
+		//convert from channel collection to json
+		String channelsJsonresult = gson.toJson(result, AppConstants.PUBLIC_CHANNELS_COLLECTION);
+		System.out.println(channelsJsonresult);
+		PrintWriter writer = response.getWriter();
+		writer.println(channelsJsonresult);
+		writer.close();
+	
 
 	}
 

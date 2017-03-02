@@ -66,7 +66,7 @@ public interface AppConstants {
 	
 	public final String CREATE_MESSAGES_TABLE = "CREATE TABLE MESSAGES("
 			+ "id integer not null generated always as identity (start with 1, increment by 1) primary key,"
-			+ "author varchar(20) not null ,"
+			+ "author varchar(20) not null,"
 			+ "channel varchar(100),"
 			+ "content varchar(500),"
 			+ "isthread boolean not null,"
@@ -75,11 +75,11 @@ public interface AppConstants {
 			+ "lastupdate timestamp not null,"
 			+ "date timestamp not null)";
 	
-	public final String INSERT_MESSAGE_STMT = "INSERT INTO MESSAGES VALUES(?,?,?,?,?,?,?,?)";
+	public final String INSERT_MESSAGE_STMT = "INSERT INTO MESSAGES (author,channel,content,isthread,isreplyto,threadid,lastupdate,date) VALUES(?,?,?,?,?,?,?,?)";
 	
 	public final String CREATE_SUBSCRIPTIONS_TABLE = "CREATE TABLE SUBSCRIPTIONS("
 			+ "id integer not null generated always as identity (start with 1, increment by 1) primary key,"
-			+ "username varchar(10) not null references users(username) on delete cascade,"
+			+ "username varchar(10) not null references users(nickname) on delete cascade,"
 			+ "channel varchar(100) not null references channels(name) on delete cascade,"
 			+ "type varchar(10) not null,"
 			+ "date timestamp not null)";
@@ -92,14 +92,15 @@ public interface AppConstants {
 	public final String SELECT_USER_BY_USERNAME_STMT = "SELECT * FROM USERS WHERE USERNAME = ?";
 	public final String SELECT_TOP_USERID_STMT = "SELECT MAX(ID) FROM USERS";
 	public final String SELECT_SUBSCRIPTIONS_BY_USERNAME = "SELECT * FROM SUBSCRIPTIONS WHERE USERNAME = ?";
-	public final String SELECT_SUBSCRIPTIONS_BY_USERNAME_PUBLIC = "SELECT * FROM SUBSCRIPTIONS WHERE USERNAME = ? AND TYPE = 'PUBLIC'";
+	public final String SELECT_SUBSCRIPTIONS_BY_USERNAME_PUBLIC = "SELECT * FROM SUBSCRIPTIONS WHERE (USERNAME = ? AND TYPE = 'PUBLIC')";
 	public final String SELECT_SUBSCRIPTIONS_BY_USERNAME_AND_CHANNEL = "SELECT * FROM SUBSCRIPTIONS WHERE USERNAME = ? AND CHANNEL = ?";
 	public final String DELETE_SUBSCRIPTIONS_BY_USERNAME_AND_CHANNEL = "DELETE FROM SUBSCRIPTIONS WHERE USERNAME = ? AND CHANNEL = ?";
 	public final String SELECT_CHANNEL_BY_NAME_AND_CREATED = "SELECT * FROM CHANNELS WHERE NAME = ? AND CREATED = ?";
 	public final String DELETE_CHANNEL_STMT = "DELETE FROM CHANNELS WHERE NAME = ? AND CREATED = ?";
-	public final String SELECT_CHANNEL_BY_NAME_AND_TYPE =  "SELECT * FROM CHANNELS WHERE NAME = ? AND TYPE = ?";
+	public final String SELECT_CHANNEL_BY_NAME_AND_TYPE =  "SELECT * FROM CHANNELS WHERE NAME LIKE ?";
 	public final String SELECT_USER_BY_NICKNAME_STMT = "SELECT * FROM USERS WHERE USERNICKNAME = ?";
-	public final String SELECT_PRIVATE_CHANNELS_BY_NICKNAME = "SELECT * FROM CHANNELS WHERE TYPE= 'PRIVATE' AND (PARTICIPANTA = ? OR PARTICIPANTB = ?)";
+	public final String SELECT_USER_BY_NICKNAME_PART_STMT = "SELECT * FROM USERS WHERE USERNICKNAME LIKE ?";
+	public final String SELECT_PRIVATE_CHANNELS_BY_NICKNAME = "SELECT * FROM CHANNELS WHERE TYPE= ? AND (PARTICIPANTA = ? OR PARTICIPANTB = ?)";
 	public final String DELETE_PRIVATE_CHANNEL_BY_NICKNAME = "DELETE FROM CHANNELS WHERE PARTICIPANTA = ? AND PARTICIPANTB = ?";
 	public final String SELECT_PRIVATE_CHANNEL_BY_NICKNAME = "SELECT * FROM CHANNELS WHERE PARTICIPANTA = ? AND PARTICIPANTB = ?";
 	public final String SELECT_THREADS_BY_CHANNEL = "SELECT * FROM MESSAGES WHERE CHANNEL = ? AND ISTHREAD = TRUE AND LASTUPDATE > ? ORDER BY LASTUPDATE ASC" ;
@@ -116,6 +117,10 @@ public interface AppConstants {
 	public final String UPDATE_USERS_CHANNEL = "UPDATE USERS SET ACTIVECHANNEL = ? WHERE USERNAME = ? ";
 	public final String THREADID = "threadID";
 	public final String SELECT_ALL_USERS = "SELECT * FROM USERS";
+	public final String DESCRIPTION = "description";
+	public final String PHOTOURL = "photo_url";
+	public final String LASTLOG = "last_log";
+	public final String LASTLASTLOG = "last_last_log";
 
 
 	

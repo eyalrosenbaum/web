@@ -69,7 +69,7 @@ public class Users extends HttpServlet {
 		
 		Gson gson = new Gson();
 		String JsonResult = gson.toJson(usersResult,AppConstants.USER_COLLECTION);
-		System.out.println(JsonResult);
+		System.out.println("users "+JsonResult);
 	}
 
 	/**

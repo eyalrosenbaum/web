@@ -143,13 +143,29 @@ public class SignupServlet extends HttpServlet {
         	    		response.sendError(500);//internal server error
         			}
 
-	    			//setting session attribute - username for future actions
-	    			session.setAttribute(AppConstants.USERNAME, user.getUserName());
+    				//setting session attribute - username for future actions
+    				session.setAttribute(AppConstants.USERNAME, user.getUserName());
+    				System.out.println("attribute set "+ session.getAttribute(AppConstants.USERNAME).toString());
+    				session.setAttribute(AppConstants.USERNICKNAME, user.getUserNickname());
+    				System.out.println("attribute set "+ session.getAttribute(AppConstants.USERNICKNAME).toString());
+    				if (user.getUserDescription()!=null)
+    					session.setAttribute(AppConstants.DESCRIPTION, user.getUserDescription());
+    				else session.setAttribute(AppConstants.DESCRIPTION, "");
+    				System.out.println("attribute set "+ session.getAttribute(AppConstants.DESCRIPTION).toString());
+    				if (user.getPhotoURL()!=null)
+    					session.setAttribute(AppConstants.PHOTOURL, user.getPhotoURL());
+    				else session.setAttribute(AppConstants.PHOTOURL, "");
+    					System.out.println("attribute set "+ session.getAttribute(AppConstants.PHOTOURL).toString());
+    				session.setAttribute(AppConstants.LASTLOG, user.getLastlogged());
+    					System.out.println("attribute set "+ session.getAttribute(AppConstants.LASTLOG).toString());
+    				session.setAttribute(AppConstants.LASTLASTLOG, user.getLastlogged());
+    				System.out.println("attribute set "+ session.getAttribute(AppConstants.LASTLASTLOG).toString());
+    				
 	    				
 	    				
     		}
 
-    		conn.close();
+    		
     		
     		String userJsonResult = null;
     		PrintWriter writer = response.getWriter();
@@ -161,9 +177,6 @@ public class SignupServlet extends HttpServlet {
     		userJsonResult = gson.toJson(user);
 			writer.println(userJsonResult);
         	writer.close();
-        	//inserting new user to user files
-        	if ((!badUserNameIndication)&&(!badNicknameIndication))
-        		saveNewUserToFile(user);
         	conn.close();
     		}
     	} catch (SQLException e) {
@@ -173,52 +186,6 @@ public class SignupServlet extends HttpServlet {
 
 	}
 	
-	public void saveNewUserToFile(User newUser) throws IOException{
-		Gson gson = new Gson();
-		ServletContext cntx = this.getServletContext();
-		InputStream is = cntx.getResourceAsStream(File.separator +
-				AppConstants.USERS_FILE);
-		//wrap input stream with a buffered reader to allow reading the file line by line
-		BufferedReader br = new BufferedReader(new InputStreamReader(is));
-		StringBuilder jsonFileContent = new StringBuilder();
-		//read line by line from file
-		String nextLine = null;
-		while ((nextLine = br.readLine()) != null){
-			jsonFileContent.append(nextLine);
-		}
-
-		//this is a require type definition by the Gson utility so Gson will 
-		//understand what kind of object representation should the json file match
-		Type type = new TypeToken<Collection<User>>(){}.getType();
-		Collection<User> users = gson.fromJson(jsonFileContent.toString(), type);
-		//close
-		users.add(newUser);
-		try {
-			br.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		FileOutputStream fooStream = null;
-		try {
-			fooStream = new FileOutputStream(AppConstants.USERS_FILE,false);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String jsonString = gson.toJson(users);
-		
-		byte[] myBytes = jsonString.getBytes();
-		try {
-			fooStream.write(myBytes);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		fooStream.close();
-
-
-		
-	}
+	
 
 }

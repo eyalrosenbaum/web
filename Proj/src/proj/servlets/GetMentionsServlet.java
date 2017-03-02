@@ -92,6 +92,7 @@ public class GetMentionsServlet extends HttpServlet {
 		}
 		Timestamp previousLog = new Timestamp(datum.getTimeInMillis());
 		String channelName = jsonObject.get("channel").toString();
+		channelName = channelName.replaceAll("\"", "");
 
 		//finding number of new notifications in database according to channel name and previouslog
 		PreparedStatement stmt;

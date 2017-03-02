@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en" ng-app="jamSession">
+<head>
+  <title>JamSession</title>
+  <script src="angular.min.js"></script>
+  <script src="jquery-3.1.1.min.js"></script>
+  <script src="app.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles/bootstrap.min.css">
+  <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body ng-controller="jamSessionController" id="body">
+  <nav id="header-nav" class="navbar navbar-default" >
+    <div class="container">
+      <img src="./solkey.jpg" id="logo-img">
+      <div class="navbar-header" >
+        <h1 class="main-page-header">JamSession</h1>
+        <p  class="main-page-header">Your one stop shop for all of your musician collaboration needs!</p>
+        <div class="row">
+          <div class="input-group" id="channelSearch" ng-hide="welcomeScreen">
+            <input type="text" class="form-control" ng-model="channelSearchText" placeholder="search channel">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="submit" ng-click="searchChannels()"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+            </span>
+          </div>
+        <div>
+          <form id="searchForm" ng-hide="welcomeScreen">
+            <input type="radio" id="radioName" name="searchCriteria" value="by channel name" checked>channel name
+            <input type="radio" id="radioNick" name="searchCriteria" value="by user nickname">user nickname
+          </form>
+        </div>
+        <div id="logout" ng-hide="welcomeScreen">
+          <span>logout  <button id="logout-button" class="btn btn-default btn-xs" type="submit" ng-click="logout()"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span></button>
+          </span>
+        </div>
+        <!--this button is for mobile screens only-->
+        <button id="navbarToggle" type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#collapsable-nav" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+
+      <div id="collapsable-nav" class="collapse navbar-collapse">
+        <ul id="nav-list" class="nav navbar-nav navbar-right">
+          <li id="navHomeButton" class="visible-xs active">
+            <a href="index.html">
+              <span class="glyphicon glyphicon-home"></span> Home</a>
+              <!---     </li>
+              <li id="navMenuButton">
+              <a href="#" onclick="$dc.loadMenuCategories();">
+              <span class="glyphicon glyphicon-cutlery"></span><br class="hidden-xs"> Menu</a>
+            </li>
+            <li>
+            <a href="#">
+            <span class="glyphicon glyphicon-info-sign"></span><br class="hidden-xs"> About</a>
+          </li>
+          <li>
+          <a href="#">
+          <span class="glyphicon glyphicon-certificate"></span><br class="hidden-xs"> Awards</a>
+        </li>
+        <li id="phone" class="hidden-xs">
+        <a href="tel:410-602-5008">
+        <span>410-602-5008</span></a><div>* We Deliver</div>
+      </li>
+      --->
+        </ul><!-- #nav-list -->
+      </div><!-- .collapse .navbar-collapse -->
+    </div><!-- .container -->
+  </nav><!-- #header-nav -->
+<!---  <div class="jumbotron main-page-jumbo">
+<div id="logo-img">
+
+</div>--->
+
+  <div class="container-fluid" >
+  <!-- this div will be for the side bar for scrolling the channels-->
+  <!--starts here-->
+    <section class="client-channel-list-container col-lg-2" ng-hide="welcomeScreen">
+      <div class="public-channels">
+        <h3 id="public-channels-header">public channels</h3>
+        <ul id = "public-channels-list" class="nav nav-pills nav-stacked">
+          <li ng-repeat = "channel in UserPublicChannels"
+            ng-class = "{'active' : isActiveChannel(channel.channel)}"
+            ng-show="showChannels">
+            <a data-toggle="tab" ng-click = "setChannel(channel.channel)">{{channel.channel}}
+            <span class="badge" ng-show=(channel.mentions)>{{channel.mentions}}</span><span class="badge" ng-show=(channel.notifications)>{{channel.notifications}}</span>
+          <span> <button type="button" class="btn btn-default btn-xs" aria-label="Left Align" ng-click="publicChannelRemove(channel.channel)">
+              <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+            </button>
+          </span>
+        </a>
+          </li>
+        </ul>
+      </div>
+      <div class="private-channels">
+        <h3 id="private-channels-header">private channels</h3>
+        <ul id = "private-channels-list" class="nav nav-pills nav-stacked">
+          <li ng-repeat = "channel in UserPrivateChannels"
+            ng-class = "{'active' : isActiveChannel(channel.name)}" ng-show="showChannels">
+            <a data-toggle="tab" ng-click = "setChannel(channel.name)" >{{channel.name}}
+            <span class="badge" ng-show=(channel.mentions)>{{channel.mentions}}</span><span class="badge" ng-show=(channel.notifications)>{{channel.notifications}}</span></a>
+            <span><button type="button" class="btn btn-default btn-xs" aria-label="Left Align" ng-click="privateChannelRemove(channel.participanta,channel.participantb)">
+              <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+            </button>
+          </span>
+          </li>
+        </ul>
+      </div>
+      <div id="channelCreate">
+        <h6>Create Channel</h6><span>
+        <button class="btn btn-default btn-xs" aria-label="Left Align" ng-click="createPublicChannel()">
+          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+        </button></span>
+      </div>
+    </div>
+  </div>
+  <!--ends here-->
+  <div id = "client-body">
+    <div id = "col-messages">
+
+<!--this is the signup/login block the user see upon first entering the site-->
+      <div class="container" id="field-space" ng-show="welcomeScreen">
+        <div class="col-lg-12">
+          <ul id="navTab" class="nav nav-pills">
+            <!--  <li class="signup-tab active"><a href="#signup">Sign Up</a></li>--->
+            <!--      <li class="tab"><a href="#login">Log In</a></li>--->
+            <li id="signup-tab" ng-class="{ active: isSelected('signup') }"><a href ng-click="selectTab('signup')">Sign Up</a></li>
+            <li id="login-tab" ng-class="{ active: isSelected('login') }"><a href ng-click="selectTab('login')" >Log In</a></li>
+          </ul>
+
+          <!--signup screen-->
+          <div class="tab-content">
+            <div id="signup" ng-show="isSelected('signup')">
+              <form>
+                <div>
+                  <!--username enter--->
+                  <div class="form-group col-lg-10">
+                    <p id="top">
+                      <label for="username" class="form-Label">Username:</label>
+                    <input id="username" type="text" ng-model="userName" class="form-control" name="username" placeholder="username*" maxlength=10 required>
+                  </p>
+                  </div>
+                  <!--password enter--->
+                  <div class="form-group col-lg-10">
+                    <p>
+                      <label for="password" class="form-Label">password:</label>
+                    <input id="password" type="password" ng-model="password" class="form-control" name="password" placeholder="password*" maxlength=8 required>
+                  </p>
+                  </div>
+                  <!--user nickname enter--->
+                  <div class="form-group col-lg-10">
+                    <p>
+                      <label for="nickname" class="form-Label">nickname:</label>
+                    <input id="nickname" type="text" ng-model="userNickname" class="form-control" name="nickname" placeholder="nickname*" maxlength=20 required>
+                  </p>
+                  </div>
+                  <!--user short description enter--->
+                  <div class="form-group col-lg-10">
+                    <p>
+                      <label for="description" class="form-Label">description:</label>
+                    <input id="description" type="text" ng-model="userDescription" class="form-control" name="description" placeholder="description*" maxlength=50 >
+                  </p>
+                  </div>
+                  <!--user link to a photo enter--->
+                  <div class="form-group col-lg-10">
+                    <p id="down">
+                      <label for="photo" class="form-Label">photo:</label>
+                    <input id="photo-url" type="text" ng-model="userPhotoURL" class="form-control" name="photo-url" placeholder="photo-url*"  >
+                  </p>
+                  </div>
+                </div>
+                <br><button id="sign-in-btn" type="submit" class="btn btn-default" ng-click="userSignUp()">Sign up</button>
+              </div>
+            </form>
+          </div>
+          <!--login screen-->
+          <div class="tab-content">
+            <div id="login" ng-show="isSelected('login')">
+              <form>
+                <div>
+                  <!--username enter--->
+                  <div class="form-group col-lg-6">
+                    <input id="username" type="text" ng-model="userName" class="form-control" name="username" placeholder="username*"  required>
+                  </div>
+                  <!--password enter--->
+                  <div class="form-group col-lg-6">
+                    <input id="password" type="password" ng-model="password" class="form-control" name="password" placeholder="password*"  required>
+                  </div>
+                </div>
+                <br><button id="login-btn" type="submit" class="btn btn-default" ng-click="userLogin()">Sign in</button>
+              </div>
+            </form>
+          </div>
+          <p id="ErrorMessage" ng-show="ErrorExists==true">{{ErrorMsg}}</p>
+        </div>
+      </div>
+
+      <!--this is the create public channel pannel-->
+            <div class="container" id="create-block" ng-show="createChannelScreen">
+              <div class="col-lg-8">
+                <!--signup screen-->
+                <div class="tab-content" id="title">
+                  <h3 id="createChannelTitle"> Create Channel </h3>
+                  <div>
+                    <form>
+                      <div>
+                        <!--channel name enter--->
+                        <div class="form-group col-lg-8">
+                          <input id="name" type="text" ng-model="channel_name" class="form-control" name="channel_name" placeholder="channel name*"maxlength=30 required>
+                        </div>
+                        <!--channel description enter--->
+                        <div class="form-group col-lg-8">
+                          <input id="description" type="text" ng-model="channel_description" class="form-control" name="channel_description" placeholder="channel description*" maxlength=500 required>
+                        </div>
+                      </div>
+                      <br><button id="channel_create_btn" type="submit" class="btn btn-default" ng-click="publicChannelCreate()">Create</button>
+                  </form>
+                </div>
+                <div ng-show="ErrorExists==true">
+                <p id="ErrorMessage" >{{ErrorMsg}}</p>
+              </div>
+              </div>
+            </div>
+          </div>
+
+
+      <!--threads will be shown here-->
+  <div id="messagecontainer" class="col-lg-8 col-md-8 col-xl-8" ng-show="showThreads">
+      <div class="panel panel-info">
+      <div class="panel-body">
+      <ul id="listOfThreads" class="media-list" >
+      <!--  <p id = "loadPic" ng-show="showThreads && loading"><img src = "./rolling.gif"></p>-->
+        <li ng-repeat = "thread in ThreadsToShow | limitTo : 10" ng-include src="'treeView.html'">
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+      <!-- this table holds the search results -->
+<div id="tableContainer">
+<table id="myTable" class="table table-sm table-hover" ng-show="showSearchResults">
+  <thead>
+    <tr>
+      <th>#</th>
+    	<th>Channel Name</th>
+    	<th>Channel Description</th>
+    	<th>Number of participants</th>
+      <th>Subscribe to Channel</th>
+    </tr>
+  </thead>
+  <tbody>
+  <!-- output each result into the table -->
+    <tr ng-repeat="x in searchPublicChannels | limitTo: 100">
+      <th scope = "row">{{$index+1}}</th>
+      <!-- ng-bind-html allows to bind a variable to the innerHTML part of the HTML element -->
+      <td>{{x.channelName}}</td><td>{{x.channelDescription}}</td><td>{{x.numberOfUsers}}</td>
+      <td><button type="button" class="btn btn-default"
+      aria-label="Left Align" ng-click="channelSubscribe(x.channelName)">
+      <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span></button></td>
+    </tr>
+  </tbody>
+</table>
+<div>
+
+        <!--
+        <div class="message" ng-hide="welcomeScreen.value">
+          <p><span class="glyphicon glyphicon-music" aria-hidden="true"></span>  hello world!</p>
+        </div>
+        <div class="message" ng-hide="welcomeScreen.value">
+          <p><span class="glyphicon glyphicon-music" aria-hidden="true"></span>  hello world!</p>
+        </div>
+      </ul>-->
+      <!--another option-->
+        <!--message write box-->
+      <div id="footer" ng-hide="welcomeScreen" class="col-lg-12 col-xs-12 col-sm-12 col-xl-12 col-md-12">
+      <!--  <input class="textarea" type="text" placeholder="type here!" /><div class="emojis"></div>-->
+
+      <!--  <form id="message-form" ng-submit="messageSubmit()">-->
+
+    <div class="row">
+
+  <div class="col-lg-6">
+    <div class="input-group" id="message-form" ng-show=showThreads>
+      <input type="text" class="form-control" ng-model="message_input" placeholder="enter message">
+      <span class="input-group-btn">
+        <button class="btn btn-default" type="submit" ng-click="messageSubmit()">send!</button>
+      </span>
+    </div><!-- /input-group -->
+  </div><!-- /.col-lg-6 -->
+</div><!-- /.row -->
+    <!--    </form>-->
+      </div>
+
+    </div>
+  </div>
+</div>
+</div>
+</body>
+</html>

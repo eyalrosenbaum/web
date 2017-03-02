@@ -1,0 +1,22 @@
+
+<div class="media-body">
+  <div class="media">
+    <a class="pull-left">
+    <img class="media-object img-circle" ng-src="{{thread.authorPhotoUrl}}">
+    <span class="caption" ng-click="openPrivateChannel(thread.author)">{{thread.author}}</span>
+    <div class="media-body">
+      {{thread.content}}
+      <br>
+      <small class="text-muted">
+        <span class="numberOfReplies" ng-click="thread.showReplies = !thread.showReplies">{{thread.numberOfReplies}} replies</span>
+          <span><button id="add_reply_btn" type="submit" class="btn btn-default btn-xs" ng-click="addReply(thread.id,thread.author)"> add reply </button>
+          </span><span><button id="show_replies_btn" type="submit" class="btn btn-default btn-xs" ng-click="fetchReplies(thread)"> show replies </button></span>
+          post date: {{thread.date | date: 'HH:MM:SS dd/mm/yy'}} last-update: {{thread.lastUpdate}}</small>
+          <hr>
+    </div>
+  </div>
+</div>
+<ul ng-if="((thread.numberOfReplies>0)&&(thread.showReplies))" ng-show="thread.showReplies">
+  <li ng-repeat="thread in thread.replies" ng-include="'treeView.html'">
+  </li>
+</ul>

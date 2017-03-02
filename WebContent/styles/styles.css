@@ -1,0 +1,331 @@
+
+/*table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,td {
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even){background-color: #f2f2f2}
+
+th {
+  background-color: #4CAF50;
+  color:white;
+}*/
+#col-messages #tableContainer>#myTable{
+  width: 75% !important;
+  position: fixed !important;
+  left: 20% !important;
+  background-color: goldenrod !important;
+  text-align: center !important;
+}
+#sign-in-btn{
+  margin-top: -20px;
+  margin-left: 41%;
+}
+#login-btn{
+  margin-left: 41%;
+}
+#ErrorMessage{
+    color: red;
+}
+#loadPic{
+    position: fixed;
+    left: 60%;
+    top: 45%;
+}
+#down{
+  margin: -6px 0 10px;
+}
+#header-nav{
+    background-color: #000000	;
+    color: white;
+    border: 0px;
+}
+#field-space{
+  background-color: black;
+  align-items: center;
+  margin-top: 0%;
+  background-color: currentColor;
+  padding-top: 2%;
+  padding-bottom: 2%;
+  width: 40%;
+  position: fixed;
+  top: 19%;
+  left: 36%;
+  height: 80%;
+}
+#create-block{
+  background-color: currentColor;
+    width: 50%;
+    height: 227px;
+}
+nav#header-nav.navbar.navbar-default{
+  position: absolute;
+  width: 100%;
+}
+#channelCreate{
+  position: absolute;
+  bottom: 10%;
+}
+#title{
+  color:coral;
+}
+#createChannelTitle{
+  color: coral;
+}
+
+.nav>li:hover, .nav>li:focus {
+  text-decoration: none;
+  background-color: #560000;
+  color:white;
+}
+
+
+
+#channel_create_btn{
+  margin-left: 100px;
+}
+#top{
+  margin: 16px 0 10px;
+}
+#public-channels-header,#private-channels-header{
+  color: coral;
+  font-family: fantasy;
+}
+#navTab{
+  margin-bottom: 1%;
+  margin-left: 2%;
+}
+#logo-img{
+  width: 130px;
+  float: left;
+}
+#userMessage{
+  position: absolute;
+  left: 210px;
+  bottom: 35px;
+}
+#message-form{
+  position: fixed;
+    width: 76%;
+    bottom: 3%;
+    left: 20%;
+}
+#message-input{
+    position: absolute;
+    top: -50px;
+    left: 0;
+    overflow: auto;
+    margin: 0;
+    margin-left: 153px;
+    margin-right: 150px;
+    width:700px;
+    min-height: 2.625rem;
+    max-height: 11.25rem;
+    padding-top: .5625rem;
+    padding-right: 1.875rem;
+    padding-bottom: .625rem;
+    padding-left: 3.125rem;
+    border: 2px solid #e0e0e0;
+    border-radius: .375rem;
+    outline: 0;
+    background: #fff;
+    resize: none;
+    box-shadow: none;
+    color: #3d3c40;
+    font-size: 1.4rem;
+    line-height: 1.2rem;
+    user-select: auto;
+    display: inline-block;
+}
+#channelSearch{
+  position: fixed;
+    width: 30%;
+    right: 3%;
+    top: 7%;
+}
+#searchForm{
+  position: fixed;
+    top: 13%;
+    right: 10%;
+    font-size: small;
+    color: coral;
+}
+#logout{
+  position: fixed;
+right: 1%;
+top: 15%;
+font-size: small;
+color: coral;
+}
+#footer{
+  position: fixed;
+  left:53px;
+  bottom: 13px;
+  z-index: 100;
+  width:100%;
+}
+#sendBtn{
+  position:absolute;
+  /*float: left;*/
+  top:-50px;
+  left:860px;
+  z-index: 100;
+  /*display: inline-block;*/
+}
+
+h6{
+  color: coral;
+}
+#body>#client-body>#col-messages>messageContainer>div.panel-body>ul#listOfThreads{
+  font-size: smaller;
+}
+#public-channels-list, #private-channels-list{
+  list-style-type: none;
+}
+
+#public_channel_search_results{
+  position: fixed;
+  left: 28%;
+}
+
+body{
+  background-color: #e96;
+}
+.form-Label{
+  color: coral;
+}
+.top-row{
+  float: left;
+}
+.signup-tab{
+margin-left: 2%;
+margin-bottom: 2%;
+}
+.main-page-header{
+  font-family: impact;
+  margin-left: 5%;
+  color:coral;
+}
+.messagePhotos{
+  float: left;
+}
+.photoName{
+  vertical-align: top;
+  display: inline-block;
+  text-align: center;
+  width: 50px;
+}
+.messagePhotos{
+  width: 50px;
+  height: 50px;
+  background-color: grey;
+}
+.caption{
+  display: block;
+}
+
+div.panel{
+  background-color: indigo;
+}
+div.media{
+  max-height:50px;
+}
+div#client-body {
+position: absolute;
+    top: 19%;
+    left: 14%;
+    width: 100%;
+    font-size: smaller;
+  }
+
+#channelSearch{
+  position:absolute;
+}
+
+#searchForm{
+  position:absolute;
+  top: 38%;
+}
+
+#logout{
+  position:absolute;
+  top:69%;
+}
+#body #client-body #col-messages>div#messageContainer{
+  position: absolute;
+    left: 14%;
+    top: 18%;
+}
+.client-channel-list-container{
+  background-image:  url("../Guitar-on-Fire.jpg");
+  z-index: 100;
+  width: 150px;
+  height: 100%;
+  position: absolute;
+  top: 10%;
+  left: 0%;
+  /*margin-top: -22px;
+  margin-left: -15px;*/
+}
+input.textarea{
+  position:fixed;
+  bottom:0px;
+  left: 151px;
+  right: 0px;
+  width: 100%;
+  height: 50px;
+  z-index:  99;
+  background: orangered;
+  border: none;
+  outline: none;
+  padding-left: 55px;
+  padding-right: 55px;
+  color: white;
+  font-weight: 400;
+}
+.messageBody{
+  float: left;
+  width: auto;
+  left: 155px;
+  max-width: 80%;
+  position: relative;
+  clear: both;
+  background: white;
+  padding: 0.5em 1em;
+  background: linear-gradient(40deg, rgba(255, 255, 255, 0.2) 00%, rgba(255,255,255,0.3) 100%);
+  border-radius: 3px;
+  box-shadow: 0 5px 30px rgba(255,255,255,0.1);
+  margin-bottom: -10px;
+  color: black;
+  word-wrap: break-word;
+  font-size: 1em;
+  margin-top: 30px;
+}
+.messageBox{
+  position: relative;
+  background: white;
+  display: block;
+  width:50%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+.thumbnail{
+  display: inline-block;
+  background: #bfbfbf;
+  width: 50px;
+  color:white;
+  line-height: 50px;
+  text-align: center;
+  text-decoration: none;
+}
+.content{
+  display: inline-block;
+  margin-left: 150px;
+  vertical-align: top;
+  line-height: 1;
+}

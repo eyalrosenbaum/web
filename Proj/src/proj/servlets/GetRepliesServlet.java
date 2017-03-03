@@ -1,3 +1,6 @@
+/**
+ * a servlet that returns the  replies for a thread
+ */
 package proj.servlets;
 
 import java.io.BufferedReader;
@@ -73,7 +76,7 @@ public class GetRepliesServlet extends HttpServlet {
 			}
 			rs.close();
 			stmt.close();
-			conn.close();
+			
 		} catch (SQLException e) {
 			getServletContext().log("Error while querying for messages", e);
 			response.sendError(500);//internal server error
@@ -89,7 +92,7 @@ public class GetRepliesServlet extends HttpServlet {
 				}
 				rs.close();
 				stmt.close();
-				conn.close();
+				
 			}} catch (SQLException e) {
 				getServletContext().log("Error while querying for replies creators", e);
 				response.sendError(500);//internal server error

@@ -1,3 +1,6 @@
+/**
+ * simple class that represents a message in a channel
+ */
 package proj.models;
 
 import java.sql.Timestamp;

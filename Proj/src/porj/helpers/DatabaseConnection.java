@@ -9,7 +9,11 @@ import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 
 import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
-
+/**
+ * 
+ * DatabaseConnection - class that is a helper class to connect to database
+ *
+ */
 
 public class DatabaseConnection {
 	private ServletContext cntx;

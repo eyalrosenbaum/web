@@ -1,3 +1,6 @@
+/**
+ * a servlet that checks if there is already a private chat between 2 users
+ */
 package proj.servlets;
 
 import java.io.BufferedReader;

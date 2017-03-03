@@ -1,3 +1,6 @@
+/**
+ * a servlet that adds a reply to a thread
+ */
 package proj.servlets;
 
 import java.io.BufferedReader;

@@ -1,3 +1,6 @@
+/**
+ * a servlet that deletes a channel from a users channel list
+ */
 package proj.servlets;
 
 import java.io.BufferedReader;

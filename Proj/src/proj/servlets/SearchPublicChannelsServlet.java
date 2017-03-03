@@ -1,3 +1,6 @@
+/**
+ * a servlet that searches public channels
+ */
 package proj.servlets;
 
 import java.io.BufferedReader;
@@ -89,8 +92,11 @@ public class SearchPublicChannelsServlet extends HttpServlet {
 		Collection<PublicChannel> result = new ArrayList<PublicChannel>();
 		String parameter = jsonObject.get("parameter").toString();
 		parameter = parameter.replaceAll("\"","");
-		String value = jsonObject.get("value").toString();
-		value = value.replaceAll("\"","");
+		String value = null;
+		if (jsonObject.get("value")!=null){
+			 value = jsonObject.get("value").toString();
+			 value = value.replaceAll("\"","");
+		}
 		System.out.println("parameter is "+parameter+" and value is "+value);
 		if (parameter.equals("name")){
 			/*search by channel's name*/

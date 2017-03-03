@@ -1,3 +1,6 @@
+/**
+ * a servlet that returns the  next 10 newer threads of a channel
+ */
 package proj.servlets;
 
 import java.io.BufferedReader;

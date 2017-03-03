@@ -1,3 +1,6 @@
+/**
+ * public channel is a channel with multiple users
+ */
 package proj.models;
 
 import java.sql.Timestamp;

@@ -1,3 +1,6 @@
+/**
+ * a servlet that creates a public chat
+ */
 package proj.servlets;
 
 import java.io.BufferedReader;

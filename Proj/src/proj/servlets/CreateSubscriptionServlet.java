@@ -1,3 +1,6 @@
+/**
+ * a servlet that creates a subscription to a channel
+ */
 package proj.servlets;
 
 import java.io.BufferedReader;

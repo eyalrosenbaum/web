@@ -79,7 +79,7 @@ public interface AppConstants {
 	
 	public final String CREATE_SUBSCRIPTIONS_TABLE = "CREATE TABLE SUBSCRIPTIONS("
 			+ "id integer not null generated always as identity (start with 1, increment by 1) primary key,"
-			+ "username varchar(10) not null references users(nickname) on delete cascade,"
+			+ "username varchar(10) not null references users(username) on delete cascade,"
 			+ "channel varchar(100) not null references channels(name) on delete cascade,"
 			+ "type varchar(10) not null,"
 			+ "date timestamp not null)";
@@ -88,7 +88,7 @@ public interface AppConstants {
 	
 	public final String UPDATE_LOGGED_USER_STMT = "UPDATE USERS SET ISLOGGED = TRUE, LASTLOGGED = ? WHERE USERNICKNAME = ?";
 	public final String UPDATE_UNLOGGED_USER_STMT = "UPDATE USERS SET ISLOGGED = FALSE, LASTLOGGED = ? WHERE USERNICKNAME = ?";
-	public final String SELECT_USER_BY_USERNAME_AND_PASS_STMT = "SELECT * FROM USERS WHERE (USERNAME = ? AND PASSWORD = ?)";
+	public final String SELECT_USER_BY_USERNAME_AND_PASS_STMT = "SELECT * FROM USERS WHERE USERNAME = ? AND PASSWORD = ?";
 	public final String SELECT_USER_BY_USERNAME_STMT = "SELECT * FROM USERS WHERE USERNAME = ?";
 	public final String SELECT_TOP_USERID_STMT = "SELECT MAX(ID) FROM USERS";
 	public final String SELECT_SUBSCRIPTIONS_BY_USERNAME = "SELECT * FROM SUBSCRIPTIONS WHERE USERNAME = ?";

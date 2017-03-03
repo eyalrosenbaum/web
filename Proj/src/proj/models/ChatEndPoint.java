@@ -1,3 +1,6 @@
+/**
+ * chat end point - to connect and manage websocket transferred data
+ */
 package proj.models;
 
 import java.io.IOException;

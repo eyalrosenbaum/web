@@ -1,3 +1,6 @@
+/**
+ * a servlet that handles the login of an existing user
+ */
 package proj.servlets;
 
 import java.io.BufferedReader;

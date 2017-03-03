@@ -1,3 +1,6 @@
+/**
+ * a servlet that adds a thread to a channel
+ */
 package proj.servlets;
 
 import java.io.BufferedReader;

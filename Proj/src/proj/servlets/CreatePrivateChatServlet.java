@@ -1,3 +1,6 @@
+/**
+ * a servlet that creates a private chat
+ */
 package proj.servlets;
 
 import java.io.BufferedReader;
@@ -10,12 +13,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -54,6 +60,7 @@ public class CreatePrivateChatServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		HttpSession session = request.getSession();
 		Gson gson = new Gson();
 		Connection conn = null;
 		try {
@@ -75,14 +82,21 @@ public class CreatePrivateChatServlet extends HttpServlet {
 		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
 
 		String name = jsonObject.get("name").toString();
-		String creator = jsonObject.get("creator").toString();
-		Timestamp created = Timestamp.valueOf((jsonObject.get("created")).toString());
+		name = name.replaceAll("\"", "");
+		String creator = (String) session.getAttribute(AppConstants.USERNAME);
+		long s = Long.parseLong(jsonObject.get("created").toString());
+		Date dater = new Date(s);
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(dater);
+		cal.set(Calendar.MILLISECOND, 0);
+		Timestamp created = new Timestamp(cal.getTimeInMillis());
+
 		//participant is this user
 		String participantA = jsonObject.get("participanta").toString();
 		String participantB = jsonObject.get("participantb").toString();
 
-		//finding channel in database according to nicknames
-		String channelName = name+AppVariables.privateChatCounter++;
+		
+		
 		PreparedStatement stmt;
 		PrivateChannel privateChat = null;
 		//first check if the private chat is opened at the other participant console
@@ -96,7 +110,7 @@ public class CreatePrivateChatServlet extends HttpServlet {
 			}
 			rs.close();
 			stmt.close();
-			conn.close();
+			
 		} catch (SQLException e) {
 			getServletContext().log("Error while querying for messages", e);
 			response.sendError(500);//internal server error
@@ -104,10 +118,12 @@ public class CreatePrivateChatServlet extends HttpServlet {
 		//if both of users don't have the channel right now
 		if (privateChat == null){
 			//creating channel in database
+			String channelName = "chat"+AppVariables.privateChatCounter++;
 			try {
 				stmt = conn.prepareStatement(AppConstants.INSERT_CHANNEL_STMT);
-				stmt.setString(1,channelName );
+				stmt.setString(1,channelName);
 				stmt.setString(2, proj.models.Type.PRIVATE.toString());
+				stmt.setString(3, "");
 				stmt.setString(4, creator);
 				stmt.setTimestamp(5, created);
 				stmt.setString(6, participantA);
@@ -115,24 +131,19 @@ public class CreatePrivateChatServlet extends HttpServlet {
 				stmt.executeUpdate();
 				conn.commit();
 				stmt.close();
-				conn.close();
-
 			} catch (SQLException e) {
 				getServletContext().log("Error while inserting new private channel", e);
 				response.sendError(500);//internal server error
 			}
-
 			try {
 				stmt = conn.prepareStatement(AppConstants.INSERT_SUBSCRIPTIONS);
-				stmt.setString(1,creator );
+				stmt.setString(1,creator);
 				stmt.setString(2,channelName);
 				stmt.setString(3, "private");
 				stmt.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
 				stmt.executeUpdate();
 				conn.commit();
 				stmt.close();
-				conn.close();
-
 			} catch (SQLException e) {
 				getServletContext().log("Error while inserting new private channel subscription", e);
 				response.sendError(500);//internal server error
@@ -147,21 +158,20 @@ public class CreatePrivateChatServlet extends HttpServlet {
 					AppVariables.activeUsersByChannel.put(channelName, users);
 				}
 				stmt.close();
-				conn.close();
+				
 				stmt = conn.prepareStatement(AppConstants.SELECT_USER_BY_NICKNAME_STMT);
 				stmt.setString(1, participantB);
 				rs = stmt.executeQuery();
 				while (rs.next())
 					users.add(new User(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getBoolean(6),rs.getTimestamp(7)));
 				stmt.close();
-				conn.close();
-
 			} catch (SQLException e) {
 				getServletContext().log("Error while querying for messages", e);
 				response.sendError(500);//internal server error
 			}
+			/*putting list of users in the hashmap*/
 			AppVariables.usersByChannel.put(channelName,users);
-
+			
 			try {
 				stmt = conn.prepareStatement(AppConstants.SELECT_CHANNEL_BY_NAME_AND_TYPE);
 				stmt.setString(1,channelName );
@@ -176,7 +186,7 @@ public class CreatePrivateChatServlet extends HttpServlet {
 				participants.add(rs.getString(7));
 				privateChat.setParticipants(participants);
 				stmt.close();
-				conn.close();
+				
 
 			} catch (SQLException e) {
 				getServletContext().log("Error while inserting new private channel", e);
@@ -195,7 +205,7 @@ public class CreatePrivateChatServlet extends HttpServlet {
 				}
 				rs.close();
 				stmt.close();
-				conn.close();
+				
 			} catch (SQLException e) {
 				getServletContext().log("Error while querying for messages", e);
 				response.sendError(500);//internal server error
@@ -212,7 +222,7 @@ public class CreatePrivateChatServlet extends HttpServlet {
 				stmt.executeUpdate();
 				conn.commit();
 				stmt.close();
-				conn.close();
+				
 
 			} catch (SQLException e) {
 				getServletContext().log("Error while inserting new private channel", e);
@@ -228,7 +238,7 @@ public class CreatePrivateChatServlet extends HttpServlet {
 				stmt.executeUpdate();
 				conn.commit();
 				stmt.close();
-				conn.close();
+				
 
 			} catch (SQLException e) {
 				getServletContext().log("Error while inserting new private channel subscription", e);
@@ -251,7 +261,7 @@ public class CreatePrivateChatServlet extends HttpServlet {
 				while (rs.next())
 					users.add(new User(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getBoolean(6),rs.getTimestamp(7)));
 				stmt.close();
-				conn.close();
+				
 
 			} catch (SQLException e) {
 				getServletContext().log("Error while querying for messages", e);
@@ -265,9 +275,16 @@ public class CreatePrivateChatServlet extends HttpServlet {
 			privateChat.setParticipants(participants);
 
 
-
+			/*updating channel list of users in hashmap*/
 			AppVariables.usersByChannel.put(privateChat.getChannelName(),users);
 		}
+	
+try {
+	conn.close();
+} catch (SQLException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+}
 
 		//convert from channel to json
 		String privateChatJsonResult = gson.toJson(privateChat, PrivateChannel.class);

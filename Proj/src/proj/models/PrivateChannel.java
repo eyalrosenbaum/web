@@ -1,3 +1,6 @@
+/**
+ * private channel is a chat between 2 participants
+ */
 package proj.models;
 
 import java.sql.Timestamp;

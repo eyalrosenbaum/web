@@ -1,3 +1,6 @@
+/**
+ * a servlet that handles a users unsubscription to a private channel
+ */
 package proj.servlets;
 
 import java.io.BufferedReader;

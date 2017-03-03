@@ -1,3 +1,6 @@
+/**
+ * a servlet that checks if the user was mentioned on a channel
+ */
 package proj.servlets;
 
 import java.io.BufferedReader;

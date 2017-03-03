@@ -1,3 +1,6 @@
+/**
+ * channel class, represents a channel in the site
+ */
 package proj.models;
 
 import java.sql.Timestamp;

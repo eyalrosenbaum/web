@@ -1,3 +1,6 @@
+/**
+ * a servlet that checks and update notifications for the user
+ */
 package proj.servlets;
 
 import java.io.BufferedReader;

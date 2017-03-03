@@ -1,3 +1,6 @@
+/**
+ * a servlet that handles the logout of an existing user
+ */
 package proj.servlets;
 
 import java.io.BufferedReader;
@@ -74,8 +77,10 @@ public class LogoutServlet extends HttpServlet {
 		JsonObject jsonObject = parser.parse(jsonDetails.toString()).getAsJsonObject();
 		
 		String usernickname = jsonObject.get("userName").toString();
+		usernickname.replaceAll("\"", "");
 		Timestamp date = new Timestamp(System.currentTimeMillis());
 		String channel = jsonObject.get("lastActiveChannel").toString();
+		channel.replaceAll("\"", "");
 		
 		PreparedStatement stmt;
 		try {
@@ -85,7 +90,7 @@ public class LogoutServlet extends HttpServlet {
 			stmt.executeUpdate();
 			conn.commit();
 			stmt.close();
-			conn.close();
+			
 			
 
 		} catch (SQLException e) {
@@ -105,6 +110,18 @@ public class LogoutServlet extends HttpServlet {
 		
 		AppVariables.activeUsersByChannel.put(channel, UserList);
 		}
+		ArrayList<User> users = AppVariables.usersByChannel.get(channel);
+		if (users!=null){
+			itr = users.iterator();
+			while(itr.hasNext()){
+				User user = (User)itr.next();
+				if (user.getUserNickname().equals(usernickname))
+					itr.remove();
+			}
+			
+			AppVariables.usersByChannel.put(channel, users);
+			
+		}
 	try {
 		conn.close();
 	} catch (SQLException e) {
@@ -120,6 +137,11 @@ public class LogoutServlet extends HttpServlet {
 	HttpSession session = request.getSession();
 	if (session != null){
 		session.removeAttribute(AppConstants.USERNAME);
+		session.removeAttribute(AppConstants.USERNICKNAME);
+		session.removeAttribute(AppConstants.DESCRIPTION);
+		session.removeAttribute(AppConstants.PHOTOURL);
+		session.removeAttribute(AppConstants.LASTLOG);
+		session.removeAttribute(AppConstants.LASTLASTLOG);
 		session.invalidate();
 	}
 	}

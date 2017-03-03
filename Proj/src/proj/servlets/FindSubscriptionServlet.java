@@ -1,3 +1,6 @@
+/**
+ * a servlet that searches all the public channel subscriptions of a user
+ */
 package proj.servlets;
 
 import java.io.IOException;

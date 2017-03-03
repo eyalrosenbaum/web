@@ -1,3 +1,6 @@
+/**
+ * a servlet that returns the newest threads of a channel
+ */
 package proj.servlets;
 
 import java.io.BufferedReader;
@@ -81,8 +84,9 @@ public class GetNewestThreadsServlet extends HttpServlet {
 
 				sub = new Subscription(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getString(4));
 				System.out.println("there were results to SELECT_SUBSCRIPTIONS_BY_USERNAME_AND_CHANNEL");
+				dateSubscribed = sub.getDate();
 			}
-			dateSubscribed = sub.getDate();
+			
 			rs.close();
 			stmt.close();
 		

@@ -1,3 +1,6 @@
+/**
+ * a servlet that handles the signup of a new user
+ */
 package proj.servlets;
 
 import java.io.BufferedReader;

@@ -1,3 +1,6 @@
+/**
+ * a helper servlet that returns the session details in case user reloads the page
+ */
 package proj.servlets;
 
 import java.io.IOException;
@@ -12,6 +15,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.swing.plaf.synth.SynthSplitPaneUI;
 
 import com.google.gson.Gson;
 
@@ -76,7 +80,9 @@ public class GetSessionDetailsServlet extends HttpServlet {
 			//convert from subscriptions collection to json
 			user.setLastlogged(lastlog);
 			user.setLastlastlogged(lastlastlog);
+			
 			String userJsonResult = gson.toJson(user, User.class);
+			System.out.println("user details are "+userJsonResult);
 			writer.println(userJsonResult);
 			writer.close();
 		}

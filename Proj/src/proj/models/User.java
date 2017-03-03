@@ -1,3 +1,6 @@
+/**
+ * simple class that represents a user of the system
+ */
 package proj.models;
 
 import java.sql.Timestamp;

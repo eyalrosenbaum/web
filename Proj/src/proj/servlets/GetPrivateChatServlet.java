@@ -1,3 +1,6 @@
+/**
+ * a servlet that checks for the existence of a private channel between 2 users and returns it
+ */
 package proj.servlets;
 
 import java.io.BufferedReader;
@@ -111,12 +114,18 @@ public class GetPrivateChatServlet extends HttpServlet {
 //				}
 				//convert from channel to json
 				String privateChatJsonResult = null;
-				if (privateChat!=null)
+				if (privateChat!=null){
 				privateChatJsonResult = gson.toJson(privateChat, PrivateChannel.class);
 
-				PrintWriter writer = response.getWriter();
-				writer.println(privateChatJsonResult);
-				writer.close();
+					PrintWriter writer = response.getWriter();
+					writer.println(privateChatJsonResult);
+					writer.close();
+				}
+				else{
+					PrintWriter writer = response.getWriter();
+					writer.println("fail");
+					writer.close();
+				}
 	}
 
 }

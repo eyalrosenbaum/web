@@ -1,3 +1,6 @@
+/**
+ * simple class to mark a subscription of a user to a public or private chat
+ */
 package proj.models;
 
 import java.sql.Timestamp;

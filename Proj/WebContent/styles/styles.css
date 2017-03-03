@@ -15,7 +15,13 @@ th {
   background-color: #4CAF50;
   color:white;
 }*/
-
+#col-messages #tableContainer>#myTable{
+  width: 75% !important;
+  position: fixed !important;
+  left: 20% !important;
+  background-color: goldenrod !important;
+  text-align: center !important;
+}
 #sign-in-btn{
   margin-top: -20px;
   margin-left: 41%;
@@ -47,12 +53,23 @@ th {
   padding-top: 2%;
   padding-bottom: 2%;
   width: 40%;
-  height:550px;
+  position: fixed;
+  top: 19%;
+  left: 36%;
+  height: 80%;
 }
 #create-block{
   background-color: currentColor;
     width: 50%;
     height: 227px;
+}
+nav#header-nav.navbar.navbar-default{
+  position: absolute;
+  width: 100%;
+}
+#channelCreate{
+  position: absolute;
+  bottom: 10%;
 }
 #title{
   color:coral;
@@ -67,13 +84,7 @@ th {
   color:white;
 }
 
-#tableContainer #myTable{
-  width: 75% !important;
-  position: fixed !important;
-  left: 20% !important;
-  background-color: goldenrod !important;
-  text-align: center !important;
-}
+
 
 #channel_create_btn{
   margin-left: 100px;
@@ -170,7 +181,9 @@ color: coral;
 h6{
   color: coral;
 }
-
+#body>#client-body>#col-messages>messageContainer>div.panel-body>ul#listOfThreads{
+  font-size: smaller;
+}
 #public-channels-list, #private-channels-list{
   list-style-type: none;
 }
@@ -215,15 +228,49 @@ margin-bottom: 2%;
 .caption{
   display: block;
 }
+
+div.panel{
+  background-color: indigo;
+}
+div.media{
+  max-height:50px;
+}
+div#client-body {
+position: absolute;
+    top: 19%;
+    left: 14%;
+    width: 100%;
+    font-size: smaller;
+  }
+
+#channelSearch{
+  position:absolute;
+}
+
+#searchForm{
+  position:absolute;
+  top: 38%;
+}
+
+#logout{
+  position:absolute;
+  top:69%;
+}
+#body #client-body #col-messages>div#messageContainer{
+  position: absolute;
+    left: 14%;
+    top: 18%;
+}
 .client-channel-list-container{
-  background-color: grey;
   background-image:  url("../Guitar-on-Fire.jpg");
   z-index: 100;
   width: 150px;
   height: 100%;
-  position: fixed;
-  margin-top: -22px;
-  margin-left: -15px;
+  position: absolute;
+  top: 10%;
+  left: 0%;
+  /*margin-top: -22px;
+  margin-left: -15px;*/
 }
 input.textarea{
   position:fixed;

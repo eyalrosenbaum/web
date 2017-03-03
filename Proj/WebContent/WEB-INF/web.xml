@@ -18,7 +18,6 @@
     <param-name>DB_NAME</param-name>
     <param-value>projDB</param-value>
   </context-param>
-
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>
